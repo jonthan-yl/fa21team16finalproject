@@ -1,0 +1,101 @@
+﻿@model fa21team16finalproject.Models.Property
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Property</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label class="control-label"></label>
+                @Html.DropDownList("SelectedCategory", (SelectList)ViewBag.AllCategories, new { @class = "form-control" })
+            </div>
+            <div class="form-group">
+                <label asp-for="Street" class="control-label"></label>
+                <input asp-for="Street" class="form-control" />
+                <span asp-validation-for="Street" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="City" class="control-label"></label>
+                <input asp-for="City" class="form-control" />
+                <span asp-validation-for="City" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="State" class="control-label"></label>
+                <select asp-for="State" asp-items="Html.GetEnumSelectList<State>()" class="form-control">
+                    <option selected="selected" value=""> </option>
+                </select>
+                <span asp-validation-for="State" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ZipCode" class="control-label"></label>
+                <input asp-for="ZipCode" class="form-control" />
+                <span asp-validation-for="ZipCode" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CleaningFee" class="control-label"></label>
+                <input asp-for="CleaningFee" class="form-control" />
+                <span asp-validation-for="CleaningFee" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="WeekNightPrice" class="control-label"></label>
+                <input asp-for="WeekNightPrice" class="form-control" />
+                <span asp-validation-for="WeekNightPrice" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="WeekendNightPrice" class="control-label"></label>
+                <input asp-for="WeekendNightPrice" class="form-control" />
+                <span asp-validation-for="WeekendNightPrice" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NumberOfBedrooms" class="control-label"></label>
+                <input asp-for="NumberOfBedrooms" class="form-control" />
+                <span asp-validation-for="NumberOfBedrooms" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NumberOfBathrooms" class="control-label"></label>
+                <input asp-for="NumberOfBathrooms" class="form-control" />
+                <span asp-validation-for="NumberOfBathrooms" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="PetsAllowed" /> @Html.DisplayNameFor(model => model.PetsAllowed)
+                </label>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="FreeParking" /> @Html.DisplayNameFor(model => model.FreeParking)
+                </label>
+            </div>
+            <div class="form-group">
+                <label asp-for="GuestLimit" class="control-label"></label>
+                <input asp-for="GuestLimit" class="form-control" />
+                <span asp-validation-for="GuestLimit" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DiscountDays" class="control-label"></label>
+                <input asp-for="DiscountDays" class="form-control" />
+                <span asp-validation-for="DiscountDays" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PercentDiscount" class="control-label"></label>
+                <input asp-for="PercentDiscount" class="form-control" />
+                <span asp-validation-for="PercentDiscount" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

@@ -1,0 +1,77 @@
+﻿@model fa21team16finalproject.Models.SearchViewModels;
+
+@{
+    ViewData["Title"] = "PropertySearch";
+}
+
+<h1>PropertySearch</h1>
+
+<h4>SearchViewModels</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="DisplaySearchResults">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="SearchState" class="control-label"></label>
+                <select asp-for="SearchState" asp-items="Html.GetEnumSelectList<State>()" class="form-control">
+                    <option selected="selected" value="">All States</option>
+                </select>
+                <span asp-validation-for="SearchState" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SearchCity" class="control-label"></label>
+                <input asp-for="SearchCity" class="form-control" />
+                <span asp-validation-for="SearchCity" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SearchGuests" class="control-label"></label>
+                <input asp-for="SearchGuests" class="form-control" />
+                <span asp-validation-for="SearchGuests" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SearchWeekPrice" class="control-label"></label>
+                <input asp-for="SearchWeekPrice" class="form-control" />
+                <span asp-validation-for="SearchWeekPrice" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SearchWeekendPrice" class="control-label"></label>
+                <input asp-for="SearchWeekendPrice" class="form-control" />
+                <span asp-validation-for="SearchWeekendPrice" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SearchBedrooms" class="control-label"></label>
+                <input asp-for="SearchBedrooms" class="form-control" />
+                <span asp-validation-for="SearchBedrooms" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SearchBathrooms" class="control-label"></label>
+                <input asp-for="SearchBathrooms" class="form-control" />
+                <span asp-validation-for="SearchBathrooms" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                Category:
+                <label class="control-label"></label>
+                @Html.DropDownList("SearchCategory.CategoryID", (SelectList)ViewBag.AllCategories, new { @class = "form-control" })
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="SearchPets" /> @Html.DisplayNameFor(model => model.SearchPets)
+                </label>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="SearchParking" /> @Html.DisplayNameFor(model => model.SearchParking)
+                </label>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Search" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

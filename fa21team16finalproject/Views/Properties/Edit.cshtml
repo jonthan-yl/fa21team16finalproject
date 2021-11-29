@@ -1,0 +1,56 @@
+﻿@model fa21team16finalproject.Models.Property
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Property</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="PropertyID" />
+            <input type="hidden" asp-for="Street" />
+            <input type="hidden" asp-for="City" />
+            <input type="hidden" asp-for="ZipCode" />
+            <input type="hidden" asp-for="State" />
+
+            <div class="form-group">
+                <label asp-for="CleaningFee" class="control-label"></label>
+                <input asp-for="CleaningFee" class="form-control" />
+                <span asp-validation-for="CleaningFee" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="WeekNightPrice" class="control-label"></label>
+                <input asp-for="WeekNightPrice" class="form-control" />
+                <span asp-validation-for="WeekNightPrice" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="WeekendNightPrice" class="control-label"></label>
+                <input asp-for="WeekendNightPrice" class="form-control" />
+                <span asp-validation-for="WeekendNightPrice" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DiscountDays" class="control-label"></label>
+                <input asp-for="DiscountDays" class="form-control" />
+                <span asp-validation-for="DiscountDays" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PercentDiscount" class="control-label"></label>
+                <input asp-for="PercentDiscount" class="form-control" />
+                <span asp-validation-for="PercentDiscount" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

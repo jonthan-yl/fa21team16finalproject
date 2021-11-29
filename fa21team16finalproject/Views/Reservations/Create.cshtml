@@ -1,0 +1,41 @@
+﻿@model fa21team16finalproject.Models.Reservation
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Reservation</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <p>@ViewBag.ErrorMessage</p>
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            @Html.HiddenFor(model => model.Order.OrderID)
+            <div class="form-group">
+                <label asp-for="CheckInDate" class="control-label"></label>
+                <input asp-for="CheckInDate" class="form-control" />
+                <span asp-validation-for="CheckInDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CheckOutDate" class="control-label"></label>
+                <input asp-for="CheckOutDate" class="form-control" />
+                <span asp-validation-for="CheckOutDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Properties:</label>
+                @Html.DropDownList("SelectedProperty", (SelectList)ViewBag.AllProperties, new { @class = "form-control" })
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-controller="Orders" asp-action="Index" class="nav-link">Back to List</a>
+</div>
+

@@ -1,0 +1,98 @@
+﻿@model fa21team16finalproject.Models.Order
+
+@{
+    ViewData["Title"] = "Details";
+}
+<h1>Edit</h1>
+
+<h4>Order</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="OrderID" />
+            <div class="form-group">
+                <label asp-for="AppUser.FirstName" class="control-label"></label>
+                @Html.DisplayFor(Model => Model.AppUser.FirstName, new { @class = "form-control" })
+            </div>
+            <div class="form-group">
+                <label asp-for="AppUser.Email" class="control-label"></label>
+                @Html.DisplayFor(Model => Model.AppUser.Email, new { @class = "form-control" })
+            </div>
+            <div class="form-group">
+                <label asp-for="OrderDate" class="control-label"></label>
+                @Html.DisplayFor(Model => Model.OrderDate, new { @class = "form-control" })
+            </div>
+        </form>
+    </div>
+</div>
+<h5>Reservations on this Order</h5>
+<table class="table table-primary">
+    <tr>
+        <th>Property</th>
+        <th>Check In Date</th>
+        <th>Check Out Date</th>
+        <th>Extended Price</th>
+    </tr>
+    @foreach (Reservation reservation in Model.Reservations)
+    {
+<tr>
+    <td>@Html.DisplayFor(ModelItem => reservation.Property.Street)</td>
+    <td>@Html.DisplayFor(ModelItem => reservation.CheckInDate)</td>
+    <td>@Html.DisplayFor(ModelItem => reservation.CheckOutDate)</td>
+    <td>@Html.DisplayFor(ModelItem => reservation.ExtendedPrice)</td>
+</tr>
+    }
+</table>
+<div>
+    <a asp-action="Index" class="btn btn-info">Back to List</a>
+    <a asp-action="Create" asp-controller="reservations" asp-route-orderID="@Model.OrderID" class="btn btn-warning">Add Another Item</a>
+    <a asp-action="Index" asp-controller="reservations" asp-route-orderID="@Model.OrderID" class="btn btn-danger">Edit Existing Items</a>
+</div>
+<h5>Order Summary</h5>
+<table class="table table-primary">
+    <tr>
+        <th>Property</th>
+        <th>Stay Price</th>
+        <th>Cleaning Fee</th>
+        <th>Discount</th>
+        <th>Subtotal</th>
+        <th>Total</th>
+    </tr>
+    @foreach (Reservation reservation in Model.Reservations)
+    {
+    <tr>
+        <td>@Html.DisplayFor(ModelItem => reservation.Property.Street)</td>
+       <td>@Html.DisplayFor(ModelItem => reservation.StayTotal)</td>
+       <td>@Html.DisplayFor(ModelItem => reservation.CleaningFee)</td>
+       <td>@Html.DisplayFor(ModelItem => reservation.Discount)</td>
+       <td>@Html.DisplayFor(ModelItem => reservation.ExtendedPrice)</td>
+        <td>@Html.DisplayFor(ModelItem => reservation.Total)</td>
+    </tr>
+    }
+</table>
+<br />
+<br />
+<table class="table table-primary">
+    <tr>
+        <th>Tax Amount</th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th>Order Subtotal</th>
+        <th>Order Total</th>
+    </tr>
+    <tr>
+        <td>@Html.DisplayFor(ModelItem => Model.SalesTax)</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>@Html.DisplayFor(ModelItem => Model.OrderSubtotal)</td>
+        <td>@Html.DisplayFor(ModelItem => Model.OrderTotal)</td>
+    </tr>
+</table>
+        <p>@ViewBag.ErrorMessage</p>
+        <div>
+            <a asp-action="ConfirmOrder" asp-controller="Orders" asp-route-orderID="@Model.OrderID" class="btn btn-warning">Confirm Order</a>
+        </div>

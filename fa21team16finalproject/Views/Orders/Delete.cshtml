@@ -1,0 +1,64 @@
+﻿@model fa21team16finalproject.Models.Order
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h1>Delete</h1>
+
+<h3>Are you sure you want to cancel this?</h3>
+<div>
+    <h4>Order</h4>
+    <hr />
+    <h5>Reservations on this Order</h5>
+    <table class="table table-primary">
+        <tr>
+            <th>Property</th>
+            <th>Check In Date</th>
+            <th>Check Out Date</th>
+            <th>Extended Price</th>
+        </tr>
+        @foreach (Reservation reservation in Model.Reservations)
+        {
+            <tr>
+                <td>@Html.DisplayFor(ModelItem => reservation.Property.Street)</td>
+                <td>@Html.DisplayFor(ModelItem => reservation.CheckInDate)</td>
+                <td>@Html.DisplayFor(ModelItem => reservation.CheckOutDate)</td>
+                <td>@Html.DisplayFor(ModelItem => reservation.ExtendedPrice)</td>
+            </tr>
+        }
+    </table>
+    <div>
+        <a asp-action="Index" class="btn btn-info">Back to List</a>
+        <a asp-action="Create" asp-controller="reservations" asp-route-orderID="@Model.OrderID" class="btn btn-warning">Add Another Item</a>
+        <a asp-action="Index" asp-controller="reservations" asp-route-orderID="@Model.OrderID" class="btn btn-danger">Edit Existing Items</a>
+    </div>
+    <h5>Order Summary</h5>
+    <table class="table table-primary">
+        <tr>
+            <th>Property</th>
+            <th>Stay Price</th>
+            <th>Cleaning Fee</th>
+            <th>Discount</th>
+            <th>Subtotal</th>
+            <th>Total</th>
+        </tr>
+        @foreach (Reservation reservation in Model.Reservations)
+        {
+            <tr>
+                <td>@Html.DisplayFor(ModelItem => reservation.Property.Street)</td>
+                <td>@Html.DisplayFor(ModelItem => reservation.StayTotal)</td>
+                <td>@Html.DisplayFor(ModelItem => reservation.CleaningFee)</td>
+                <td>@Html.DisplayFor(ModelItem => reservation.Discount)</td>
+                <td>@Html.DisplayFor(ModelItem => reservation.ExtendedPrice)</td>
+                <td>@Html.DisplayFor(ModelItem => reservation.Total)</td>
+            </tr>
+        }
+    </table>
+
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="OrderID" />
+        <input type="submit" value="Delete" class="btn btn-danger" /> |
+        <a asp-action="Index">Back to List</a>
+    </form>
+</div>

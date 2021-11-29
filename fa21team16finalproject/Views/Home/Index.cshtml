@@ -1,0 +1,18 @@
+﻿<center>
+    <h1>
+        BevoBNB
+    </h1>
+    <br />
+    <a asp-action="Index" asp-controller="Properties" class="btn btn-info">View Properties</a>
+    @if (User.Identity.IsAuthenticated)
+    {
+        @if (User.IsInRole("Admin"))
+        {
+            <a asp-action="PendingProperties" asp-controller="Properties" class="btn btn-info">View Pending Properties</a>
+        }
+        @if (User.IsInRole("Admin") | User.IsInRole("Customer"))
+        {
+            <a asp-action="Index" asp-controller="Orders" class="btn btn-info">View/Edit Orders</a>
+        }
+    }
+</center>

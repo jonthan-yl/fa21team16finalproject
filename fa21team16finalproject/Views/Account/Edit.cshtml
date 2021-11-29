@@ -1,0 +1,81 @@
+﻿@model EditAccountViewModel
+
+@{
+    ViewData["Title"] = "Edit Profile";
+}
+
+<h1>Edit Profile</h1>
+
+<hr />
+@if (User.IsInRole("Admin"))
+{
+    <div class="row">
+        <div class="col-md-4">
+            <form asp-action="Edit" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group">
+                    <label asp-for="NewFirstName" class="control-label"></label>
+                    <input asp-for="NewFirstName" class="form-control" />
+                    <span asp-validation-for="NewFirstName" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="NewLastName" class="control-label"></label>
+                    <input asp-for="NewLastName" class="form-control" />
+                    <span asp-validation-for="NewLastName" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="NewPhoneNumber" class="control-label"></label>
+                    <input asp-for="NewPhoneNumber" class="form-control" />
+                    <span asp-validation-for="NewPhoneNumber" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="NewAddress" class="control-label"></label>
+                    <input asp-for="NewAddress" class="form-control" />
+                    <span asp-validation-for="NewAddress" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="NewBirthday" class="control-label"></label>
+                    <input asp-for="NewBirthday" class="form-control" />
+                    <span asp-validation-for="NewBirthday" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Save Changes" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <form asp-action="Edit" , method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="NewFirstName" />
+                <input type="hidden" asp-for="NewLastName" />
+                <div class="form-group">
+                    <label asp-for="NewPhoneNumber" class="control-label"></label>
+                    <input asp-for="NewPhoneNumber" class="form-control" />
+                    <span asp-validation-for="NewPhoneNumber" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="NewAddress" class="control-label"></label>
+                    <input asp-for="NewAddress" class="form-control" />
+                    <span asp-validation-for="NewAddress" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="NewBirthday" class="control-label"></label>
+                    <input asp-for="NewBirthday" class="form-control" />
+                    <span asp-validation-for="NewBirthday" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Save Changes" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
+    </div>
+}
+
+<div>
+    <a asp-controller="Home" asp-action="Index">Back to Home</a>
+</div>
