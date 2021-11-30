@@ -31,12 +31,9 @@ namespace fa21team16finalproject.Controllers
         // GET: Orders/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            /*if (id == null)
-            {
-                return NotFound();
-            }*/
 
             var order  = await _context.Orders.Include(o => o.Reservations)
+                                              .ThenInclude(o => o.Property)
                                               .Include(o => o.AppUser)
                         .FirstOrDefaultAsync(o => o.AppUser.UserName == User.Identity.Name && o.Status == Status.Pending);
             if (order == null)
