@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace fa21team16finalproject.Models
 {
+    public enum Status { Pending, Confirmed, Cancelled}
     public class Order
     {
         //Primary Key
@@ -47,10 +48,13 @@ namespace fa21team16finalproject.Models
         [Display(Name = "Confirmed:")]
         public bool isComplete { get; set; }
 
-
+        public Status Status { get; set; }
 
         //Navigational Property
+        //Assigned upon creation of reservation
         public List<Reservation> Reservations { get; set; }
+
+        //Declared in creation of order
         public AppUser AppUser { get; set; }
 
         public Order()

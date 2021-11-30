@@ -6,8 +6,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace fa21team16finalproject.Models
 {
-    public enum State { AK, AL, AR, AS, AZ, CA, CO, CT, DC, DE, FL, GA, GU, HI, IA, ID, IL, IN, KS, KY, 
-        LA, MA, MD, ME, MI, MN, MO, MP, MS, MT, NC, ND, NE, NH, NJ, NM, NV, NY, OH, OK, OR, PA, PR, RI, 
+    public enum State { AK, AL, AR, AS, AZ, CA, CO, CT, DC, DE, FL, GA, GU, HI, IA, ID, IL, IN, KS, KY,
+        LA, MA, MD, ME, MI, MN, MO, MP, MS, MT, NC, ND, NE, NH, NJ, NM, NV, NY, OH, OK, OR, PA, PR, RI,
         SC, SD, TN, TX, UM, UT, VA, VI, VT, WA, WI, WV, WY }
     public class Property
     {
@@ -40,7 +40,7 @@ namespace fa21team16finalproject.Models
         [Display(Name = "Property Cleaning Fee:")]
         [Required(ErrorMessage = "Property Cleaning Fee is required")]
         [DisplayFormat(DataFormatString = "{0:c}")]
-        [Range(0,999999)]
+        [Range(0, 999999)]
         public Decimal CleaningFee { get; set; }
 
         [Display(Name = "Property Week Night Price:")]
@@ -84,25 +84,69 @@ namespace fa21team16finalproject.Models
 
         [Display(Name = "Discount Percentage:")]
         [Range(0, 1)]
-        public decimal ?PercentDiscount { get; set; }
+        public decimal? PercentDiscount { get; set; }
 
+        [DisplayFormat(DataFormatString = "{0:F1}")]
         public decimal Rating { get; set; }
-
         public bool isDisabled { get; set; }
 
         public bool isPending { get; set; }
 
         //Navigational Properties
+        //Upon instantiation of property
         public Category Category { get; set; }
 
         public AppUser Host { get; set; }
+        //Upon creation of review, and reservation respectfully
 
         public List<Review> Reviews { get; set; }
 
         public List<Reservation> Reservations { get; set; }
 
+        public void calcRating()
+        {
+            if (Reviews == null)
+            {
+                return;
+            }
+            decimal reviewCount = 0;
+            foreach (Review review in Reviews)
+            {
+                reviewCount += review.Rating;
+            }
+            if (Reviews.Count != 0)
+            {
+                Rating = reviewCount / Reviews.Count;
+            }
+            else
+            {
+                Rating = 0;
+            }
+        }
+        private bool datesConflict(DateTime min1, DateTime max1, DateTime min2, DateTime max2)
+        {
+            if (min1.CompareTo(min2) > 0 & min1.CompareTo(max2) < 0)
+                return true;
+            else if (min2.CompareTo(min1) > 0 & min2.CompareTo(max1) < 0)
+                return true;
+            else
+                return false;
+        }
+
+        public bool propertyAvailability(DateTime startDate, DateTime endDate)
+        {
+            foreach (Reservation currentRsv in Reservations)
+            {
+                if (datesConflict(startDate, endDate, currentRsv.CheckInDate, currentRsv.CheckOutDate))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
         public Property()
         {
+            calcRating();
             if(isDisabled != true)
             {
                 isDisabled = false;
@@ -119,6 +163,7 @@ namespace fa21team16finalproject.Models
             {
                 Reviews = new List<Review>();
             }
+
         }
     }
 }

@@ -10,8 +10,8 @@ using fa21team16finalproject.DAL;
 namespace fa21team16finalproject.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20211128173256_Total")]
-    partial class Total
+    [Migration("20211130220904_orderNullable")]
+    partial class orderNullable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -268,6 +268,9 @@ namespace fa21team16finalproject.Migrations
 
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.Property<bool>("isComplete")
                         .HasColumnType("bit");

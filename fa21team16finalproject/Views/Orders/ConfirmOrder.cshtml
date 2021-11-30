@@ -1,0 +1,16 @@
+﻿@model fa21team16finalproject.Models.Order
+
+@{
+    ViewData["Title"] = "Confirmed";
+}
+
+<center>
+    <h1>
+        Congratulations! Your order has been confirmed.
+    </h1>
+    <br />
+    <h6>
+        Your Confirmation Number is
+        @Html.DisplayFor(ModelItem => Model.ConfirmationNumber)
+    </h6>
+</center>

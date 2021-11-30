@@ -31,17 +31,14 @@ namespace fa21team16finalproject.Controllers
         // GET: Orders/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
+            /*if (id == null)
             {
                 return NotFound();
-            }
+            }*/
 
-            var order = await _context.Orders
-                .Include(o => o.AppUser)
-                .Include(o => o.Reservations)
-                .ThenInclude(o => o.Property)
-                .FirstOrDefaultAsync(m => m.OrderID == id);
-
+            var order  = await _context.Orders.Include(o => o.Reservations)
+                                              .Include(o => o.AppUser)
+                        .FirstOrDefaultAsync(o => o.AppUser.UserName == User.Identity.Name && o.Status == Status.Pending);
             if (order == null)
             {
                 return NotFound();
@@ -143,6 +140,16 @@ namespace fa21team16finalproject.Controllers
                 .ThenInclude(o => o.Property)
                 .FirstOrDefaultAsync(m => m.OrderID == orderId);
 
+            if (order.Status == Status.Confirmed)
+            {
+                return View("Error", new String[] { "This order has already been confirmed" });
+            }
+
+            if (order.Status == Status.Cancelled)
+            {
+                return View("Error", new String[] { "This order has already been cancelled" });
+            }
+
             if (User.IsInRole("Customer") && order.AppUser.UserName != User.Identity.Name)
             {
                 return View("Error", new String[] { "This is not your order!  Don't be such a snoop!" });
@@ -153,15 +160,22 @@ namespace fa21team16finalproject.Controllers
                 ViewBag.ErrorMessage = "You have not yet added any reservations to your order!";
                 return View("Details", order);
             }
-            order.isComplete = true;
-            _context.Add(order);
+            order.Status = Status.Confirmed;
+            order.ConfirmationNumber = Utilities.GenerateNextConfirmationNumber.GetNextConfirmationNumber(_context);
+            _context.Update(order);
             await _context.SaveChangesAsync();
-            return RedirectToAction("ConfirmationScreen", orderId);
+            return View(order);
         }
 
         public async Task<IActionResult> ConfirmationScreen (int orderId)
         {
-            return View();
+            var order = await _context.Orders
+               .Include(o => o.AppUser)
+                 .Include(o => o.Reservations)
+                .ThenInclude(o => o.Property)
+                 .FirstOrDefaultAsync(m => m.OrderID == orderId);
+
+            return View(order);
         }
 
         private bool OrderExists(int id)

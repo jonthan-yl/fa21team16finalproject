@@ -5,7 +5,9 @@
 }
 
 <h1>Index</h1>
-
+<div>
+    <a asp-controller="Orders" asp-action="Details" class="nav-link">Proceed to Checkout</a>
+</div>
 <p>
     <a asp-action="Create">Create New</a>
 </p>
@@ -22,7 +24,10 @@
                 @Html.DisplayNameFor(model => model.TotalDays)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ExtendedPrice)
+                @Html.DisplayNameFor(model => model.Total)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Order.Status)
             </th>
             <th></th>
         </tr>
@@ -40,7 +45,10 @@
                 @Html.DisplayFor(modelItem => item.TotalDays)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.ExtendedPrice)
+                @Html.DisplayFor(modelItem => item.Total)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Order.Status)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.ReservationID">Edit</a> |

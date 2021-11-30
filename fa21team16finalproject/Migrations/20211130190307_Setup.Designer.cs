@@ -10,8 +10,8 @@ using fa21team16finalproject.DAL;
 namespace fa21team16finalproject.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20211128171048_Setup2")]
-    partial class Setup2
+    [Migration("20211130190307_Setup")]
+    partial class Setup
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -269,6 +269,9 @@ namespace fa21team16finalproject.Migrations
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
                     b.Property<bool>("isComplete")
                         .HasColumnType("bit");
 
@@ -322,6 +325,9 @@ namespace fa21team16finalproject.Migrations
 
                     b.Property<int>("PropertyNumber")
                         .HasColumnType("int");
+
+                    b.Property<decimal>("Rating")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("State")
                         .HasColumnType("int");
@@ -392,6 +398,9 @@ namespace fa21team16finalproject.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("StayTotal")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Total")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("TotalDays")

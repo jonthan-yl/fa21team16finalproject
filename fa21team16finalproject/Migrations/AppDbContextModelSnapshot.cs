@@ -267,6 +267,9 @@ namespace fa21team16finalproject.Migrations
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
                     b.Property<bool>("isComplete")
                         .HasColumnType("bit");
 

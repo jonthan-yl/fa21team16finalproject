@@ -46,6 +46,7 @@ namespace fa21team16finalproject.Controllers
         // GET: Reviews/Create
         public IActionResult Create()
         {
+            ViewBag.AllProperties = GetAllPropertiesAvailable();
             return View();
         }
 
@@ -54,14 +55,36 @@ namespace fa21team16finalproject.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ReviewID,Rating,Comments")] Review review)
+        public async Task<IActionResult> Create([Bind("ReviewID,Rating,Comments")] Review review, int SelectedProperty)
         {
-            if (ModelState.IsValid)
+            var dbProperty = await _context.Properties
+                            .Include(p => p.Reservations)
+                            .ThenInclude(r => r.Customer)
+                            .Include(p => p.Reviews)
+                            .FirstOrDefaultAsync(m => m.PropertyID == SelectedProperty);
+
+            var dbCustomer = await _context.Users.FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
+
+            foreach (Reservation currentRsv in dbProperty.Reservations)
             {
-                _context.Add(review);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                if ((currentRsv.Customer.UserName == User.Identity.Name) & (currentRsv.CheckInDate.CompareTo(DateTime.Now) < 0))
+                {
+                    if (ModelState.IsValid)
+                    {
+                        review.Customer = dbCustomer;
+                        review.Property = dbProperty;
+                        dbProperty.Reviews.Add(review);
+                        dbCustomer.Reviews.Add(review);
+                        dbProperty.calcRating();
+                        _context.Add(review);
+                        await _context.SaveChangesAsync();
+                       
+                        return RedirectToAction(nameof(Index));
+                    }
+                }
             }
+            ViewBag.AllProperties = GetAllPropertiesAvailable();
+            ViewBag.ErrorMessage = "Our database indicates you have not yet stayed at this property";
             return View(review);
         }
 
@@ -148,6 +171,19 @@ namespace fa21team16finalproject.Controllers
         private bool ReviewExists(int id)
         {
             return _context.Reviews.Any(e => e.ReviewID == id);
+        }
+        private SelectList GetAllPropertiesAvailable()
+        {
+            List<Property> allProperties = _context.Properties.
+                Include(p => p.Host).Include(p => p.Reviews).
+                Where(p => p.isPending != true).
+                Where(p => p.isDisabled != true).ToList();
+
+
+            SelectList slAllProperties = new SelectList(allProperties,
+               "PropertyID", "Street");
+
+            return slAllProperties;
         }
     }
 }

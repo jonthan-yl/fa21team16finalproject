@@ -44,6 +44,10 @@ namespace fa21team16finalproject.Controllers
                              .Where(p => p.isPending == false)
                              .ToListAsync();
             }
+            foreach (Property property in properties)
+            {
+                property.calcRating();
+            }
             return View(properties);
         }
 
@@ -227,6 +231,7 @@ namespace fa21team16finalproject.Controllers
             var query = from p in _context.Properties.Include(p => p.Host)
                              .Include(p => p.Reviews)
                              .Include(p => p.Category)
+                             .Include(p => p.Reservations)
                              .Where(p => p.isDisabled == false)
                              .Where(p => p.isPending == false)
                         select p;
@@ -271,8 +276,34 @@ namespace fa21team16finalproject.Controllers
             {
                 query = query.Where(p => p.FreeParking == svm.SearchParking);
             }
+            if (svm.SearchRating != null)//Did user enter something for SearchPrice
+            {
+                //If user picked 'Less Than'
+                if (svm.SearchType < 0)
+                {
+                    query = query.Where(b => b.Rating <= svm.SearchRating);
+                }
+                //If user picked 'Greater Than'
+                else if (svm.SearchType > 0)
+                {
+                    query = query.Where(b => b.Rating >= svm.SearchRating);
+                }
+            }
 
-            List<Property> properties = query.ToList();
+            List<Property> properties_predate = query.ToList();
+            List<Property> properties = new List<Property>();
+
+            if (svm.SearchStartDate != null & svm.SearchEndDate != null)
+            {
+                foreach (Property property in properties_predate)
+                {
+                    if (property.propertyAvailability((DateTime)svm.SearchStartDate, (DateTime)svm.SearchEndDate))
+                    {
+                        properties.Add(property);
+                    }
+                }
+            }
+
 
             ViewBag.AllProperties = _context.Properties
                                     .Where(p => p.isDisabled == false)

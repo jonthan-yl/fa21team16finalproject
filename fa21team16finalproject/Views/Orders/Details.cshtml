@@ -93,6 +93,9 @@
     </tr>
 </table>
         <p>@ViewBag.ErrorMessage</p>
+@if (!Model.isComplete)
+{
         <div>
             <a asp-action="ConfirmOrder" asp-controller="Orders" asp-route-orderID="@Model.OrderID" class="btn btn-warning">Confirm Order</a>
         </div>
+}

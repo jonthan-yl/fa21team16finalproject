@@ -20,19 +20,13 @@ namespace fa21team16finalproject.Controllers
         }
 
         // GET: Reservations
-        public async Task<IActionResult> Index(int? orderID)
+        public async Task<IActionResult> Index()
         {
-            if (orderID == null)
-            {
-                return View("Error", new String[] { "Please specify an order to view!" });
-            }
-
             //limit the list to only the registration details that belong to this registration
             List<Reservation> ods = await _context.Reservations
                                           .Include(r => r.Property)
                                           .Include(r => r.Order)
                                           .ThenInclude(r => r.AppUser)
-                                          .Where(r => r.Order.OrderID == orderID)
                                           .ToListAsync();
 
             return View(ods);
@@ -47,6 +41,7 @@ namespace fa21team16finalproject.Controllers
             }
 
             var reservation = await _context.Reservations
+                .Include(m => m.Property)
                 .FirstOrDefaultAsync(m => m.ReservationID == id);
             if (reservation == null)
             {
@@ -57,11 +52,10 @@ namespace fa21team16finalproject.Controllers
         }
 
         // GET: Reservations/Create
-        public IActionResult Create(int orderID)
+        public IActionResult Create()
         {       
             Reservation reservation = new Reservation();
 
-            reservation.Order = _context.Orders.Find(orderID);
             //_context.SaveChangesAsync();
 
             ViewBag.AllProperties = GetAllPropertiesAvailable();
@@ -76,10 +70,23 @@ namespace fa21team16finalproject.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ReservationID,CheckInDate,CheckOutDate," +
                                                     "TotalDays,WeekNightPrice,WeekendNightPrice,ExtendedPrice," +
-                                                    " CleaningFee, Order")] 
+                                                    " CleaningFee")] 
                                                      Reservation reservation, int SelectedProperty)
         {
             ViewBag.AllProperties = GetAllPropertiesAvailable();
+            Order dbOrder = await _context.Orders.Include(o => o.Reservations)
+                        .FirstOrDefaultAsync(o => o.AppUser.UserName == User.Identity.Name && o.Status == Status.Pending);
+
+            if (dbOrder == null)
+            {
+                var order = new Order();
+                order.Status = Status.Pending;
+                order.AppUser = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
+                _context.Add(order);
+                reservation.Order = order;
+                await _context.SaveChangesAsync();
+            }
+
             if (ModelState.IsValid == false)
             {
                 return View(reservation);
@@ -100,8 +107,11 @@ namespace fa21team16finalproject.Controllers
             Property dbProperty = await _context.Properties.Include(p => p.Reservations)
                                     .FirstOrDefaultAsync(p =>p.PropertyID == SelectedProperty);
 
-            Order dbOrder = await _context.Orders.Include(o => o.Reservations)
-                                    .FirstOrDefaultAsync(o => o.OrderID == reservation.Order.OrderID);
+
+            //This SHOULD always return a dbOrder now
+            dbOrder = await _context.Orders.Include(o => o.Reservations)
+                        .FirstOrDefaultAsync(o => o.AppUser.UserName == User.Identity.Name && o.Status == Status.Pending);
+
             AppUser dbCustomer =  _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
             reservation.Customer = dbCustomer;
             reservation.Order = dbOrder;
@@ -116,25 +126,25 @@ namespace fa21team16finalproject.Controllers
             {
                 reservation.PercentDiscount = dbProperty.PercentDiscount;
             }
+
             foreach (Reservation currentRsv in reservation.Property.Reservations)
             {
-                 if (currentRsv.CheckInDate.CompareTo(reservation.CheckInDate) < 0 & 
-                    currentRsv.CheckOutDate.CompareTo(reservation.CheckInDate) > 0) 
-                    {
-                    string Err = "This reservation time conflicts with a previously held reservation of "
-                        + currentRsv.CheckInDate + " to " + currentRsv.CheckOutDate;
-                        ViewBag.ErrorMessage = Err;
-                        return View(reservation);
-                    }
+                string Err = "This reservation time conflicts with a previously held reservation of "
+                         + currentRsv.Property.Street + " from "
+                         + currentRsv.CheckInDate + " to " + currentRsv.CheckOutDate;
+                if (datesConflict(currentRsv.CheckInDate, currentRsv.CheckOutDate, reservation.CheckInDate, reservation.CheckOutDate))
+                {
+                    ViewBag.ErrorMessage = Err;
+                    return View(reservation);
+                }
             }
             foreach(Reservation currentRsv in reservation.Order.Reservations)
             {
-                if (currentRsv.CheckInDate.CompareTo(reservation.CheckInDate) < 0 &
-                   currentRsv.CheckOutDate.CompareTo(reservation.CheckInDate) > 0)
+                string Err = "This reservation time conflicts with a reservation on this order at "
+                      + currentRsv.Property.Street + " from "
+                      + currentRsv.CheckInDate + " to " + currentRsv.CheckOutDate;
+                if (datesConflict(currentRsv.CheckInDate, currentRsv.CheckOutDate, reservation.CheckInDate, reservation.CheckOutDate))
                 {
-                    string Err = "This reservation time conflicts with your reservation at "
-                        + currentRsv.Property.Street + " from " 
-                        + currentRsv.CheckInDate + " to " + currentRsv.CheckOutDate;
                     ViewBag.ErrorMessage = Err;
                     return View(reservation);
                 }
@@ -145,11 +155,12 @@ namespace fa21team16finalproject.Controllers
             //Adds the reservation to the order's reservations list
             dbOrder.Reservations.Add(reservation);
             dbProperty.Reservations.Add(reservation);
+            
 
             _context.Add(reservation);
             await _context.SaveChangesAsync();
             ViewBag.AllProducts = GetAllPropertiesAvailable();
-            return RedirectToAction("Index", "Orders");
+            return View();
         }
 
         // GET: Reservations/Edit/5
@@ -289,6 +300,18 @@ namespace fa21team16finalproject.Controllers
 
             return slAllProperties;
         }
+
+        private bool datesConflict(DateTime min1, DateTime max1, DateTime min2, DateTime max2)
+        {
+            if (min1.CompareTo(min2) > 0 & min1.CompareTo(max2) < 0)
+                return true;
+            else if (min2.CompareTo(min1) > 0 & min2.CompareTo(max1) < 0)
+                return true;
+            else
+                return false;
+        }
+
+
         private bool ReservationExists(int id)
         {
             return _context.Reservations.Any(e => e.ReservationID == id);

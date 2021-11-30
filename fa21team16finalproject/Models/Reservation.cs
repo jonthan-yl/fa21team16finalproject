@@ -59,7 +59,7 @@ namespace fa21team16finalproject.Models
 
         public const Decimal TAX_RATE = 0.1m;
         //Navigational Properties
-        public Order Order { get; set; }
+        public Order? Order { get; set; }
 
         public Property Property { get; set; }
 

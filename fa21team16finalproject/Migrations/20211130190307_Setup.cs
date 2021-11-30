@@ -182,6 +182,7 @@ namespace fa21team16finalproject.Migrations
                     ConfirmationNumber = table.Column<int>(type: "int", nullable: false),
                     OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     isComplete = table.Column<bool>(type: "bit", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
                     AppUserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
@@ -216,6 +217,7 @@ namespace fa21team16finalproject.Migrations
                     GuestLimit = table.Column<int>(type: "int", nullable: false),
                     DiscountDays = table.Column<int>(type: "int", nullable: false),
                     PercentDiscount = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    Rating = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     isDisabled = table.Column<bool>(type: "bit", nullable: false),
                     isPending = table.Column<bool>(type: "bit", nullable: false),
                     CategoryID = table.Column<int>(type: "int", nullable: true),
@@ -254,6 +256,8 @@ namespace fa21team16finalproject.Migrations
                     PercentDiscount = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     StayTotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     ExtendedPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Discount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Total = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     OrderID = table.Column<int>(type: "int", nullable: true),
                     PropertyID = table.Column<int>(type: "int", nullable: true),
                     CustomerId = table.Column<string>(type: "nvarchar(450)", nullable: true)

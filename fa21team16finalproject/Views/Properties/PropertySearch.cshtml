@@ -50,6 +50,17 @@
                 <span asp-validation-for="SearchBathrooms" class="text-danger"></span>
             </div>
             <div class="form-group">
+                <label asp-for="SearchRating" class="control-label"></label>
+                <input asp-for="SearchRating" class="form-control" />
+                <span asp-validation-for="SearchRating" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <div class="col-md-10">
+                    <input type="radio" class="radio" asp-for="SearchType" value=-1 checked="checked" /> Less Than
+                    <input type="radio" class="radio" asp-for="SearchType" value=1 /> Greater Than<br />
+                </div>
+            </div>
+            <div class="form-group">
                 Category:
                 <label class="control-label"></label>
                 @Html.DropDownList("SearchCategory.CategoryID", (SelectList)ViewBag.AllCategories, new { @class = "form-control" })
@@ -63,6 +74,20 @@
                 <label class="form-check-label">
                     <input class="form-check-input" asp-for="SearchParking" /> @Html.DisplayNameFor(model => model.SearchParking)
                 </label>
+            </div>
+            <br />
+            <h5>
+                Search by Availability:
+            </h5>
+            <div class="form-group">
+                <label asp-for="SearchStartDate" class="control-label"></label>
+                <input asp-for="SearchStartDate" class="form-control" />
+                <span asp-validation-for="SearchStartDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SearchEndDate" class="control-label"></label>
+                <input asp-for="SearchEndDate" class="form-control" />
+                <span asp-validation-for="SearchEndDate" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Search" class="btn btn-primary" />

@@ -12,7 +12,7 @@
         }
         @if (User.IsInRole("Admin") | User.IsInRole("Customer"))
         {
-            <a asp-action="Index" asp-controller="Orders" class="btn btn-info">View/Edit Orders</a>
+            <a asp-action="Index" asp-controller="Reservations" class="btn btn-info">Reservations</a>
         }
     }
 </center>

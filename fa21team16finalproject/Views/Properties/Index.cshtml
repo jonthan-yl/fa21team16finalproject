@@ -53,14 +53,17 @@ else
             <th>
                 @Html.DisplayNameFor(model => model.NumberOfBedrooms)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Rating)
+            </th>
             @if (User.IsInRole("Host"))
             {
-        <th>
-            @Html.DisplayNameFor(model => model.isPending)
-        </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.isPending)
+                </th>
             }
-                <th></th>
-            </tr>
+            <th></th>
+        </tr>
     </thead>
     <tbody>
         @foreach (var item in Model)
@@ -95,6 +98,10 @@ else
             <td>
                 @Html.DisplayFor(modelItem => item.NumberOfBedrooms)
             </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Rating)
+            </td>
+
             @if (User.IsInRole("Host"))
             {
                 <td>

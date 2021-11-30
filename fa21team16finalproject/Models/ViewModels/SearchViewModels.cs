@@ -32,6 +32,16 @@ namespace fa21team16finalproject.Models
         [Display(Name = "Minimum Bathrooms: ")]
         public Int32? SearchBathrooms { get; set; }
 
+        [DisplayFormat(DataFormatString = "{0:F1}")]
+        public decimal? SearchRating { get; set; }
+        public Int32 SearchType { get; set; }
+        [DataType(DataType.Date)]
+        [Display(Name = "Check In Date:")]
+        public DateTime ?SearchStartDate { get; set; }
+        [DataType(DataType.Date)]
+        [Display(Name = "Check Out Date:")]
+        public DateTime ?SearchEndDate { get; set; }
+
         [Display(Name = "Must Allow Pets: ")]
         public bool SearchPets { get; set; }
 
