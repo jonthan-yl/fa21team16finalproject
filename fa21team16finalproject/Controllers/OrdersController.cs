@@ -38,7 +38,7 @@ namespace fa21team16finalproject.Controllers
                         .FirstOrDefaultAsync(o => o.AppUser.UserName == User.Identity.Name && o.Status == Status.Pending);
             if (order == null)
             {
-                return NotFound();
+                return View("Error", new String[] { "No active orders in database." });
             }
             if (User.IsInRole("Customer") && order.AppUser.UserName != User.Identity.Name)
             {

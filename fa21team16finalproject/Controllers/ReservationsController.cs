@@ -281,6 +281,10 @@ namespace fa21team16finalproject.Controllers
 
             var dbReservation = await _context.Reservations
                 .FirstOrDefaultAsync(m => m.ReservationID == id);
+            if (dbReservation == null)
+            {
+                return NotFound();
+            }
 
 
             return View(dbReservation);
@@ -289,12 +293,13 @@ namespace fa21team16finalproject.Controllers
         // POST: Reservations/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var reservation = await _context.Reservations.FindAsync(id);
+            Reservation reservation = _context.Reservations.FirstOrDefault(r => r.ReservationID == id);
             reservation.Status = Status.Cancelled;
             _context.Update(reservation);
-            return RedirectToAction(nameof(Index));
+            await _context.SaveChangesAsync();
+            return View("Index");
         }
         private SelectList GetAllPropertiesAvailable()
         {
@@ -303,8 +308,6 @@ namespace fa21team16finalproject.Controllers
                 Where(p => p.isPending != true).
                 Where(p => p.isDisabled != true).ToList();
             
-          
-
             SelectList slAllProperties = new SelectList(allProperties,
                "PropertyID", "Street");
 
