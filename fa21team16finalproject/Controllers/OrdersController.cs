@@ -135,7 +135,12 @@ namespace fa21team16finalproject.Controllers
                 .Include(o => o.AppUser)
                 .Include(o => o.Reservations)
                 .ThenInclude(o => o.Property)
-                .FirstOrDefaultAsync(m => m.OrderID == orderId);
+                .FirstOrDefaultAsync(o => o.AppUser.UserName == User.Identity.Name && o.Status == Status.Pending);
+            if (order == null)
+            {
+                return View("Error", new String[] { "This order cannot be found" });
+            }
+
 
             if (order.Status == Status.Confirmed)
             {
@@ -158,6 +163,10 @@ namespace fa21team16finalproject.Controllers
                 return View("Details", order);
             }
             order.Status = Status.Confirmed;
+            foreach (Reservation currentRsv in order.Reservations)
+            {
+                currentRsv.Status = Status.Confirmed;
+            }
             order.ConfirmationNumber = Utilities.GenerateNextConfirmationNumber.GetNextConfirmationNumber(_context);
             _context.Update(order);
             await _context.SaveChangesAsync();

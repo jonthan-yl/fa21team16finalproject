@@ -37,9 +37,6 @@
                         @if (User.IsInRole("Customer"))
                         {
                             <li>
-                                <a asp-controller="Orders" asp-action="Index" class="nav-link">Orders</a>
-                            </li>
-                            <li>
                                 <a asp-controller="Reviews" asp-action="Index" class="nav-link">Make a new review</a>
                             </li>
                         }

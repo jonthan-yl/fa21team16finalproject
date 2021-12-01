@@ -51,9 +51,15 @@
                 @Html.DisplayFor(modelItem => item.Order.Status)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.ReservationID">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ReservationID">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ReservationID">Delete</a>
+                @if (item.Order.Status == Status.Pending)
+                {
+                    <a asp-action="Edit" asp-route-id="@item.ReservationID">Edit</a> 
+                }
+            <a asp-action="Details" asp-route-id="@item.ReservationID">Details</a> 
+            @if(item.Order.Status == Status.Confirmed)
+            {
+            <a asp-action="Delete" asp-route-id="@item.ReservationID">Cancel</a>
+            }
             </td>
         </tr>
 }

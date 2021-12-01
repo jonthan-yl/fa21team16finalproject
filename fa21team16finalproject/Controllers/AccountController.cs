@@ -146,6 +146,10 @@ namespace fa21team16finalproject.Controllers
             //they requested OR the homepage if there isn't a specific url
             if (result.Succeeded)
             {
+                if(User.IsInRole("Customer"))
+                {
+                    return Redirect(returnUrl ?? "/Properties/Index");
+                }
                 //return ?? "/" means if returnUrl is null, substitute "/" (home)
                 return Redirect(returnUrl ?? "/");
             }

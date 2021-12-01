@@ -20,7 +20,7 @@ namespace fa21team16finalproject.Utilities
             Int32 intMaxPropertyNumber; //the current maximum course number
             Int32 intNextPropertyNumber; //the course number for the next class
 
-            if (_context.Orders.Count() == 0) //there are no registrations in the database yet
+            if (_context.Orders.Count() == 2) //there are no registrations in the database yet
             {
                 intMaxPropertyNumber = START_NUMBER; //registration numbers start at 101
             }

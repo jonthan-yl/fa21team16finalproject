@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace fa21team16finalproject.Models
 {
-    public enum Status { Pending, Confirmed, Cancelled}
+    
     public class Order
     {
         //Primary Key

@@ -22,11 +22,14 @@ namespace fa21team16finalproject.Models
         [Required(ErrorMessage = "Birthday is required")]
         public DateTime Birthday { get; set; }
 
+        [Required(ErrorMessage = "IsActive is required")]
         public bool IsActive { get; set; }
 
         [Display(Name = "Address:")]
         [Required(ErrorMessage = "Address is required")]
         public string Address { get; set; }
+
+        public Int32 ZipCode { get; set; }
 
         //Navigational Properties
         public List<Order> Orders { get; set; }

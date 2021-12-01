@@ -5,6 +5,7 @@ using System.Collections.Generic;
 
 namespace fa21team16finalproject.Models
 {
+    public enum Status { Pending, Confirmed, Cancelled }
     public class Reservation
     {
         //Primary Key
@@ -53,6 +54,7 @@ namespace fa21team16finalproject.Models
         [DisplayFormat(DataFormatString = "{0:C}")]
         public decimal Discount { get; set; }
 
+        public Status Status { get; set; }
 
         [DisplayFormat(DataFormatString = "{0:C}")]
         public decimal Total { get; set; }
@@ -74,6 +76,7 @@ namespace fa21team16finalproject.Models
         
         public void CalcExtendedPrice()
         {
+            ExtendedPrice = 0;
             foreach (DateTime day in Reservation.EachDay(CheckInDate, CheckOutDate))
             {
                 if (day.DayOfWeek == DayOfWeek.Friday | day.DayOfWeek == DayOfWeek.Saturday)
@@ -88,6 +91,7 @@ namespace fa21team16finalproject.Models
             
             StayTotal = ExtendedPrice;
             ExtendedPrice = ExtendedPrice + CleaningFee;
+            //if the discount applies
             if (TotalDays >= DiscountDays & !(PercentDiscount == null | DiscountDays == 0))
             {
                 Discount = (decimal)(ExtendedPrice * PercentDiscount);

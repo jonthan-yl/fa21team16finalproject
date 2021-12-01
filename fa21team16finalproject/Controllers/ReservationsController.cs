@@ -56,7 +56,7 @@ namespace fa21team16finalproject.Controllers
         {       
             Reservation reservation = new Reservation();
 
-            //_context.SaveChangesAsync();
+            _context.SaveChangesAsync();
 
             ViewBag.AllProperties = GetAllPropertiesAvailable();
 
@@ -150,12 +150,12 @@ namespace fa21team16finalproject.Controllers
                 }
 
             }
-
+            
             reservation.CalcExtendedPrice();
             //Adds the reservation to the order's reservations list
             dbOrder.Reservations.Add(reservation);
             dbProperty.Reservations.Add(reservation);
-            
+            reservation.Status = Status.Pending;
 
             _context.Add(reservation);
             await _context.SaveChangesAsync();
@@ -172,7 +172,15 @@ namespace fa21team16finalproject.Controllers
                 return NotFound();
             }
 
-            var reservation = await _context.Reservations.FindAsync(id);
+            var reservation = await _context.Reservations
+                                            .Include(r => r.Order)        
+                                            .FirstOrDefaultAsync(r => r.ReservationID == id);
+
+            if (reservation.Status == Status.Confirmed | reservation.Status == Status.Cancelled)
+            {
+                ViewBag.ErrorMessage = "This reservation has either already been finalized or cancelled";
+                return View("Index");
+            }
             if (reservation == null)
             {
                 return NotFound();
@@ -185,61 +193,66 @@ namespace fa21team16finalproject.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ReservationID,CheckInDate,CheckOutDate," +
-                                                    "TotalDays,WeekNightPrice,WeekendNightPrice,ExtendedPrice," +
-                                                    " CleaningFee, Order")]
-                                                     Reservation @reservation, int SelectedProperty)
+        public async Task<IActionResult> Edit(int id, Reservation paramReservation, int SelectedProperty)
         {
-            if (id != @reservation.ReservationID)
+            ViewBag.AllProperties = GetAllPropertiesAvailable();
+            if (id != paramReservation.ReservationID)
             {
                 return NotFound();
             }
-
+            ViewBag.AllCategories = GetAllPropertiesAvailable();
             if (ModelState.IsValid)
             {
-                if (@reservation.CheckInDate < DateTime.Now)
+                Reservation reservation = _context.Reservations
+                                                .Include(r => r.Order)
+                                                .Include(r => r.Property)
+                                                .Include(r => r.Customer)
+                                                .FirstOrDefault(r => r.ReservationID == paramReservation.ReservationID);
+                if (reservation.CheckInDate < DateTime.Now)
                 {
                     ViewBag.ErrorMessage = "Check in date cannot be prior to today's date";
                     return View(reservation);
                 }
-                if (@reservation.CheckOutDate < @reservation.CheckInDate)
+                if (reservation.CheckOutDate < reservation.CheckInDate)
                 {
                     ViewBag.ErrorMessage = "Check in date must be prior to check out date";
-                    return View(@reservation);
+                    return View(reservation);
                 }
 
-                ViewBag.AllCategories = GetAllPropertiesAvailable();
-                foreach (Reservation currentRsv in @reservation.Property.Reservations)
+                foreach (Reservation currentRsv in reservation.Property.Reservations)
                 {
-                    if (currentRsv.CheckInDate.CompareTo(@reservation.CheckInDate) < 0 &
-                       currentRsv.CheckOutDate.CompareTo(@reservation.CheckInDate) > 0)
+                    string Err = "This reservation time conflicts with a previously held reservation of "
+                             + currentRsv.Property.Street + " from "
+                             + currentRsv.CheckInDate + " to " + currentRsv.CheckOutDate;
+                    if (currentRsv.ReservationID == paramReservation.ReservationID)
+                    { } //pass
+                    else if(datesConflict(currentRsv.CheckInDate, currentRsv.CheckOutDate, paramReservation.CheckInDate, paramReservation.CheckOutDate))
                     {
-                        string Err = "This reservation time conflicts with a previously held reservation of "
-                            + currentRsv.CheckInDate + " to " + currentRsv.CheckOutDate;
                         ViewBag.ErrorMessage = Err;
-                        return View(@reservation);
+                        return View(reservation);
                     }
                 }
-                foreach (Reservation currentRsv in @reservation.Order.Reservations)
+                foreach (Reservation currentRsv in reservation.Order.Reservations)
                 {
-                    if (currentRsv.CheckInDate.CompareTo(@reservation.CheckInDate) < 0 &
-                       currentRsv.CheckOutDate.CompareTo(@reservation.CheckInDate) > 0)
+                    string Err = "This reservation time conflicts with a reservation on this order at "
+                          + currentRsv.Property.Street + " from "
+                          + currentRsv.CheckInDate + " to " + currentRsv.CheckOutDate;
+                    if (currentRsv.ReservationID == paramReservation.ReservationID)
+                    { } //pass
+                    else if (datesConflict(currentRsv.CheckInDate, currentRsv.CheckOutDate, paramReservation.CheckInDate, paramReservation.CheckOutDate))
                     {
-                        string Err = "This reservation time conflicts with your reservation at "
-                            + currentRsv.Property.Street + " from "
-                            + currentRsv.CheckInDate + " to " + currentRsv.CheckOutDate;
                         ViewBag.ErrorMessage = Err;
-                        return View(@reservation);
+                        return View(reservation);
                     }
 
                 }
-
-                @reservation.CalcExtendedPrice();
-                await _context.SaveChangesAsync();
-
+                
+                reservation.CheckInDate = paramReservation.CheckInDate;
+                reservation.CheckOutDate = paramReservation.CheckOutDate;
+                reservation.CalcExtendedPrice();
                 try
                 {
-                    _context.Update(@reservation);
+                    _context.Update(reservation);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -255,7 +268,7 @@ namespace fa21team16finalproject.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(@reservation);
+            return View("Index");
         }
 
         // GET: Reservations/Delete/5
@@ -266,14 +279,11 @@ namespace fa21team16finalproject.Controllers
                 return NotFound();
             }
 
-            var reservation = await _context.Reservations
+            var dbReservation = await _context.Reservations
                 .FirstOrDefaultAsync(m => m.ReservationID == id);
-            if (reservation == null)
-            {
-                return NotFound();
-            }
 
-            return View(reservation);
+
+            return View(dbReservation);
         }
 
         // POST: Reservations/Delete/5
@@ -282,8 +292,8 @@ namespace fa21team16finalproject.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var reservation = await _context.Reservations.FindAsync(id);
-            _context.Reservations.Remove(reservation);
-            await _context.SaveChangesAsync();
+            reservation.Status = Status.Cancelled;
+            _context.Update(reservation);
             return RedirectToAction(nameof(Index));
         }
         private SelectList GetAllPropertiesAvailable()
@@ -306,6 +316,8 @@ namespace fa21team16finalproject.Controllers
             if (min1.CompareTo(min2) > 0 & min1.CompareTo(max2) < 0)
                 return true;
             else if (min2.CompareTo(min1) > 0 & min2.CompareTo(max1) < 0)
+                return true;
+            else if (min2.CompareTo(min1) == 0)
                 return true;
             else
                 return false;

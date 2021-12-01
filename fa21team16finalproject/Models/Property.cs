@@ -129,6 +129,8 @@ namespace fa21team16finalproject.Models
                 return true;
             else if (min2.CompareTo(min1) > 0 & min2.CompareTo(max1) < 0)
                 return true;
+            else if (min2.CompareTo(min1) == 0)
+                return true;
             else
                 return false;
         }
