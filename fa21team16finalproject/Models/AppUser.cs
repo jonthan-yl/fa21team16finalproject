@@ -29,7 +29,7 @@ namespace fa21team16finalproject.Models
         [Required(ErrorMessage = "Address is required")]
         public string Address { get; set; }
 
-        public Int32 ZipCode { get; set; }
+        public string ZipCode { get; set; }
 
         //Navigational Properties
         public List<Order> Orders { get; set; }

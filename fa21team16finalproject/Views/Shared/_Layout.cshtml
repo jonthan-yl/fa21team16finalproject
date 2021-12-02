@@ -42,7 +42,9 @@
                         }
                         @if (User.IsInRole("Host"))
                         {
-
+                            <li>
+                                <a asp-controller="Reservations" asp-action="Index" class="nav-link">Reservations</a>
+                            </li>
                         }
 
                     }

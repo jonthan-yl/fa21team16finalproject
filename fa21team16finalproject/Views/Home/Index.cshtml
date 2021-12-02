@@ -14,5 +14,9 @@
         {
             <a asp-action="Index" asp-controller="Reservations" class="btn btn-info">Reservations</a>
         }
+        @if (User.IsInRole("Host"))
+        {
+            <a asp-action="ReportSearch" asp-controller="Properties" class="btn btn-info">Report</a>
+        }
     }
 </center>

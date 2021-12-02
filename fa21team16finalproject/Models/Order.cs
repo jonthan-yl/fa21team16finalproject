@@ -26,7 +26,7 @@ namespace fa21team16finalproject.Models
         [DisplayFormat(DataFormatString = "{0:C}")]
         public Decimal OrderSubtotal
         {
-            get { return Reservations.Sum(Reservation => Reservation.ExtendedPrice); }
+            get { return Reservations.Sum(Reservation => Reservation.DiscountedSubtotal); }
         }
 
         [Display(Name = "Sales Tax (810%)")]

@@ -15,14 +15,14 @@ namespace fa21team16finalproject.Utilities
         {
             //set a constant to designate where the registration numbers 
             //should start
-            const Int32 START_NUMBER = 21901;
+            const Int32 START_NUMBER = 21900;
 
             Int32 intMaxPropertyNumber; //the current maximum course number
             Int32 intNextPropertyNumber; //the course number for the next class
 
-            if (_context.Orders.Count() == 2) //there are no registrations in the database yet
+            if (_context.Orders.Count() == 1) //there is one reservation (the first one just made)
             {
-                intMaxPropertyNumber = START_NUMBER; //registration numbers start at 101
+                intMaxPropertyNumber = START_NUMBER; //registration numbers start at 21901
             }
             else
             {

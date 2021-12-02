@@ -1,0 +1,70 @@
+﻿@model IEnumerable<fa21team16finalproject.Models.Reservation>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<table class="table">
+    <thead>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+                Property
+            </td>           
+            @foreach (Property property in ViewBag.AllProperties)
+            {
+
+                <td>
+                    @property.Street
+                </td>
+
+            }
+        </tr>
+        <tr>
+            <td>
+                Total Host Stay Revenue
+            </td>
+           
+            @foreach (decimal value in ViewBag.propertyStayRevenue)
+            {
+                <td>
+                    @value
+                </td>
+            }
+            </tr>
+            <tr>
+                <td>
+                    Total Cleaning Fees Collected
+                </td>            
+                @foreach (decimal value in ViewBag.propertyCleaningFees)
+                {
+                    <td>
+                        @value
+                    </td>
+            }
+                </tr>
+            </tbody>
+</table>
+
+<center>
+    <h3>
+        Total Host Stay Revenues:
+    </h3>
+    <h4>
+        @ViewBag.TotalStayRevenue
+    </h4>
+    <br />
+    <h3>
+        Total Cleaning Revenues:
+    </h3>
+    <h4>
+        @ViewBag.TotalCleaningFees
+    </h4>
+    <h3>
+        Total Completed Reservations:
+    </h3>
+    <h4>
+        @ViewBag.ReservationCount
+    </h4>
+</center>

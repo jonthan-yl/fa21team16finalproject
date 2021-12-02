@@ -20,8 +20,26 @@ namespace fa21team16finalproject.Controllers
         }
 
         // GET: Reviews
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? propertyId)
         {
+            if (propertyId != null)
+            {
+                List<Review> reviews = await _context.Reviews
+                                        .Include(r => r.Property)
+                                        .Where(r => r.Property.PropertyID == propertyId)
+                                        .ToListAsync();
+                return View(reviews);
+            }
+            if (User.IsInRole("Host"))
+            {
+                List<Review> reviews = await _context.Reviews
+                        .Include(r => r.Property)
+                        .ThenInclude(r => r.Host)
+                        .Where(r => r.Property.Host.UserName == User.Identity.Name)
+                        .ToListAsync();
+
+                return View(reviews);
+            }
             return View(await _context.Reviews.ToListAsync());
         }
 

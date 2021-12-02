@@ -13,6 +13,7 @@ namespace fa21team16finalproject.Controllers
 {
     public class PropertiesController : Controller
     {
+        private const decimal V = 0.9M;
         private readonly AppDbContext _context;
 
         public PropertiesController(AppDbContext context)
@@ -182,6 +183,12 @@ namespace fa21team16finalproject.Controllers
 
             return View(property);
         }
+        //GET
+        [Authorize(Roles = "Host")]
+        public async Task<IActionResult> Unavailable()
+        {
+            return RedirectToAction("Create", "Reservations");
+        }
 
         // POST: Properties/Disable/5
         [HttpPost, ActionName("Disable")]
@@ -216,6 +223,69 @@ namespace fa21team16finalproject.Controllers
             property.isPending = false;
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult ReportSearch()
+        {
+            return View();
+        }
+
+        public ActionResult DisplayReport(ReportViewModel rvm)
+        {
+
+            var reservations = _context.Reservations
+                                        .Include(r => r.Customer)
+                                        .Include(r => r.Property)
+                                        .ThenInclude(r => r.Host)
+                                        .Where(r => r.Property.Host.UserName == User.Identity.Name)
+                                        .Where(r => r.Status == Status.Confirmed);
+
+            if (rvm.SearchStartDate != null)
+            {
+                reservations = reservations.Where(r => r.CheckOutDate >= rvm.SearchStartDate);
+            }
+            if (rvm.SearchEndDate != null)
+            {
+                reservations = reservations.Where(r => r.CheckInDate <= rvm.SearchEndDate);
+            }
+            reservations = reservations.Where(r => r.Customer.UserName != r.Property.Host.UserName);
+            List<Reservation> return_reserv = reservations.ToList();
+
+            ViewBag.ReservationCount = reservations.Count();
+            
+            List<Property> properties = _context.Properties.Where(p => p.Host.UserName == User.Identity.Name)
+                                                            .Include(p => p.Reservations)
+                                                            .ToList();
+            ViewBag.allProperties = properties;
+
+            List<decimal> propertyStayRevenue = new List<decimal>();
+            List<decimal> propertyCleaningFee = new List<decimal>();
+
+            foreach (Property property in properties)
+            {
+                decimal stayRevenue = 0;
+                decimal cleaningFees = 0;
+                foreach(Reservation reservation in property.Reservations)
+                {
+                    if (return_reserv.Contains(reservation))
+                    {
+                        stayRevenue += reservation.StayTotal;
+                        cleaningFees += reservation.CleaningFee;
+                    }
+                }
+                stayRevenue *= V;
+                propertyStayRevenue.Add(stayRevenue);
+                propertyCleaningFee.Add(cleaningFees);
+                //Calculate stay revenue, cleaning fees collected, total reservations
+            }
+            //TODO: CREATE LIST OF DECIMALS FOR ALL THE PROPERTIES YOU NEED TO DISPLAY, PUT IN VIEWBAG GL ON LIFE
+            ViewBag.TotalStayRevenue = propertyStayRevenue.Sum();
+            ViewBag.TotalCleaningFees = propertyCleaningFee.Sum();
+            ViewBag.propertyStayRevenue = propertyStayRevenue;
+            ViewBag.propertyCleaningFees = propertyCleaningFee;
+
+
+            return View("Report", return_reserv);
         }
 
         public IActionResult PropertySearch()
@@ -302,6 +372,10 @@ namespace fa21team16finalproject.Controllers
                         properties.Add(property);
                     }
                 }
+            }
+            else
+            {
+                properties = properties_predate;
             }
 
 

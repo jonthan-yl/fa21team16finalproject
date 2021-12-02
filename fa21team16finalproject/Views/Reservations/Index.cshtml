@@ -15,6 +15,9 @@
     <thead>
         <tr>
             <th>
+                Property
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.CheckInDate)
             </th>
             <th>
@@ -36,6 +39,9 @@
 @foreach (var item in Model) {
         <tr>
             <td>
+                @Html.DisplayFor(modelItem => item.Property.Street)
+            </td>
+            <td>
                 @Html.DisplayFor(modelItem => item.CheckInDate)
             </td>
             <td>
@@ -51,15 +57,15 @@
                 @Html.DisplayFor(modelItem => item.Status)
             </td>
             <td>
-                @if (item.Order.Status == Status.Pending)
+                @if (item.Order.Status == Status.Pending & !User.IsInRole("Host"))
                 {
-                    <a asp-action="Edit" asp-route-id="@item.ReservationID">Edit</a> 
+                    <a asp-action="Edit" asp-route-id="@item.ReservationID">Edit</a>
                 }
-            <a asp-action="Details" asp-route-id="@item.ReservationID">Details</a> 
-            @if(item.Status == Status.Confirmed)
-            {
-            <a asp-action="Delete" asp-route-id="@item.ReservationID">Cancel</a>
-            }
+                <a asp-action="Details" asp-route-id="@item.ReservationID">Details</a>
+                @if (item.Status == Status.Confirmed)
+                {
+                    <a asp-action="Delete" asp-route-id="@item.ReservationID">Cancel</a>
+                }
             </td>
         </tr>
 }

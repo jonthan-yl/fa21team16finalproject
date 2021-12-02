@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using fa21team16finalproject.DAL;
 using fa21team16finalproject.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace fa21team16finalproject.Controllers
 {
@@ -23,13 +24,36 @@ namespace fa21team16finalproject.Controllers
         public async Task<IActionResult> Index()
         {
             //limit the list to only the registration details that belong to this registration
-            List<Reservation> ods = await _context.Reservations
-                                          .Include(r => r.Property)
-                                          .Include(r => r.Order)
-                                          .ThenInclude(r => r.AppUser)
-                                          .ToListAsync();
 
-            return View(ods);
+        if (User.IsInRole("Customer"))
+            {
+                List<Reservation> ods = await _context.Reservations
+                    .Include(r => r.Property)
+                    .Include(r => r.Order)
+                    .ThenInclude(r => r.AppUser)
+                    .Where(r => r.Customer.UserName == User.Identity.Name)
+                    .ToListAsync();
+                return View(ods);
+            }
+        else if (User.IsInRole("Host"))
+            {
+                List<Reservation> ods = await _context.Reservations
+                  .Include(r => r.Property)
+                  .Include(r => r.Order)
+                    .ThenInclude(r => r.AppUser)
+                   .Where(r => r.Property.Host.UserName == User.Identity.Name)
+                   .ToListAsync();
+                return View(ods);
+            }
+            else
+            {
+                List<Reservation> ods = await _context.Reservations
+                    .Include(r => r.Property)
+                    .Include(r => r.Order)
+                    .ThenInclude(r => r.AppUser)
+                    .ToListAsync();
+                return View(ods);
+            }
         }
 
         // GET: Reservations/Details/5
@@ -42,7 +66,14 @@ namespace fa21team16finalproject.Controllers
 
             var reservation = await _context.Reservations
                 .Include(m => m.Property)
+                .Include(m => m.Customer)
                 .FirstOrDefaultAsync(m => m.ReservationID == id);
+
+           if (User.IsInRole("Customer") && reservation.Customer.UserName != User.Identity.Name)
+                {
+                    return View("Error", new String[] { "This is not your order!  Don't be such a snoop!" });
+                }
+
             if (reservation == null)
             {
                 return NotFound();
@@ -57,8 +88,24 @@ namespace fa21team16finalproject.Controllers
             Reservation reservation = new Reservation();
 
             _context.SaveChangesAsync();
+            if (User.IsInRole("Host"))
+            {
+                List<Property> allProperties = _context.Properties.
+                    Include(p => p.Host).Include(p => p.Reviews).
+                    Where(p => p.isPending != true).
+                    Where(p => p.isDisabled != true).
+                    Where(p => p.Host.UserName == User.Identity.Name).ToList();
 
-            ViewBag.AllProperties = GetAllPropertiesAvailable();
+                SelectList slAllProperties = new SelectList(allProperties,
+                   "PropertyID", "Street");
+
+                ViewBag.AllProperties = slAllProperties;
+
+            }
+            else
+            {
+                ViewBag.AllProperties = GetAllPropertiesAvailable();
+            }
 
             return View(reservation);
         }
@@ -91,12 +138,13 @@ namespace fa21team16finalproject.Controllers
             {
                 return View(reservation);
             }
-
+            /* TODO: REMOVE COMMENT 
             if (reservation.CheckInDate < DateTime.Now)
             {
                 ViewBag.ErrorMessage = "Check in date cannot be prior to today's date";
                 return View(reservation);
             }
+            */
             if (reservation.CheckOutDate < reservation.CheckInDate)
             {
                 ViewBag.ErrorMessage = "Check in date must be prior to check out date";
@@ -126,46 +174,67 @@ namespace fa21team16finalproject.Controllers
             {
                 reservation.PercentDiscount = dbProperty.PercentDiscount;
             }
-
-            foreach (Reservation currentRsv in reservation.Property.Reservations)
+            if (!User.IsInRole("Host"))
             {
-                string Err = "This reservation time conflicts with a previously held reservation of "
-                         + currentRsv.Property.Street + " from "
-                         + currentRsv.CheckInDate + " to " + currentRsv.CheckOutDate;
-                if (datesConflict(currentRsv.CheckInDate, currentRsv.CheckOutDate, reservation.CheckInDate, reservation.CheckOutDate))
+                foreach (Reservation currentRsv in reservation.Property.Reservations)
                 {
-                    ViewBag.ErrorMessage = Err;
-                    return View(reservation);
+                    string Err = "This reservation time conflicts with a previously held reservation of "
+                             + currentRsv.Property.Street + " from "
+                             + currentRsv.CheckInDate + " to " + currentRsv.CheckOutDate;
+                    if (datesConflict(currentRsv.CheckInDate, currentRsv.CheckOutDate, reservation.CheckInDate, reservation.CheckOutDate))
+                    {
+                        ViewBag.ErrorMessage = Err;
+                        return View(reservation);
+                    }
                 }
-            }
-            foreach(Reservation currentRsv in reservation.Order.Reservations)
-            {
-                string Err = "This reservation time conflicts with a reservation on this order at "
-                      + currentRsv.Property.Street + " from "
-                      + currentRsv.CheckInDate + " to " + currentRsv.CheckOutDate;
-                if (datesConflict(currentRsv.CheckInDate, currentRsv.CheckOutDate, reservation.CheckInDate, reservation.CheckOutDate))
+                foreach (Reservation currentRsv in reservation.Order.Reservations)
                 {
-                    ViewBag.ErrorMessage = Err;
-                    return View(reservation);
+                    string Err = "This reservation time conflicts with a reservation on this order at "
+                          + currentRsv.Property.Street + " from "
+                          + currentRsv.CheckInDate + " to " + currentRsv.CheckOutDate;
+                    if (datesConflict(currentRsv.CheckInDate, currentRsv.CheckOutDate, reservation.CheckInDate, reservation.CheckOutDate))
+                    {
+                        ViewBag.ErrorMessage = Err;
+                        return View(reservation);
+                    }
+
                 }
 
+                reservation.CalcExtendedPrice();
+                reservation.Status = Status.Pending;
             }
-            
-            reservation.CalcExtendedPrice();
+            else
+            {
+                reservation.Status = Status.Confirmed;
+            }
             //Adds the reservation to the order's reservations list
             dbOrder.Reservations.Add(reservation);
             dbProperty.Reservations.Add(reservation);
-            reservation.Status = Status.Pending;
+            
 
             _context.Add(reservation);
             await _context.SaveChangesAsync();
             ViewBag.AllProducts = GetAllPropertiesAvailable();
-            return View();
+            List<Reservation> ods = await _context.Reservations
+                    .Include(r => r.Property)
+                    .Include(r => r.Order)
+                    .ThenInclude(r => r.AppUser)
+                    .Where(r => r.Customer.UserName == User.Identity.Name)
+                    .ToListAsync();
+            if (!User.IsInRole("Host"))
+            {
+                return View("Index", ods);
+            }
+            else
+            {
+                return RedirectToAction("Index", "Properties");
+            }
         }
 
         // GET: Reservations/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+
             ViewBag.AllProperties = GetAllPropertiesAvailable();
             if (id == null)
             {
@@ -173,9 +242,13 @@ namespace fa21team16finalproject.Controllers
             }
 
             var reservation = await _context.Reservations
-                                            .Include(r => r.Order)        
+                                            .Include(r => r.Order)     
+                                            .Include(r => r.Customer)
                                             .FirstOrDefaultAsync(r => r.ReservationID == id);
-
+            if (User.IsInRole("Customer") && reservation.Customer.UserName != User.Identity.Name)
+            {
+                return View("Error", new String[] { "This is not your order!  Don't be such a snoop!" });
+            }
             if (reservation.Status == Status.Confirmed | reservation.Status == Status.Cancelled)
             {
                 ViewBag.ErrorMessage = "This reservation has either already been finalized or cancelled";
@@ -206,6 +279,7 @@ namespace fa21team16finalproject.Controllers
                 Reservation reservation = _context.Reservations
                                                 .Include(r => r.Order)
                                                 .Include(r => r.Property)
+                                                .ThenInclude(r => r.Reservations)
                                                 .Include(r => r.Customer)
                                                 .FirstOrDefault(r => r.ReservationID == paramReservation.ReservationID);
                 if (reservation.CheckInDate < DateTime.Now)
@@ -268,7 +342,13 @@ namespace fa21team16finalproject.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View("Index");
+            List<Reservation> ods = await _context.Reservations
+                    .Include(r => r.Property)
+                    .Include(r => r.Order)
+                    .ThenInclude(r => r.AppUser)
+                    .Where(r => r.Customer.UserName == User.Identity.Name)
+                    .ToListAsync();
+            return View("Index", ods);
         }
 
         // GET: Reservations/Delete/5
@@ -280,7 +360,17 @@ namespace fa21team16finalproject.Controllers
             }
 
             var dbReservation = await _context.Reservations
+                .Include(r => r.Customer)
                 .FirstOrDefaultAsync(m => m.ReservationID == id);
+            if (User.IsInRole("Customer") && dbReservation.Customer.UserName != User.Identity.Name)
+            {
+                return View("Error", new String[] { "This is not your order!  Don't be such a snoop!" });
+            }
+
+            if (dbReservation.CheckInDate.Subtract(DateTime.Now).TotalMinutes <= 1440)
+            {
+                return View("Error", new String[] { "You are less than a day away from your reservation, it cannot be cancelled" });
+            }
             if (dbReservation == null)
             {
                 return NotFound();

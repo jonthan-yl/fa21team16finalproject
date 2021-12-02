@@ -49,15 +49,18 @@ namespace fa21team16finalproject.Models
         public decimal StayTotal { get; set; }
 
         [DisplayFormat(DataFormatString = "{0:C}")]
-        public decimal ExtendedPrice { get; set; }
+        public decimal DiscountedSubtotal { get; set; }
 
         [DisplayFormat(DataFormatString = "{0:C}")]
         public decimal Discount { get; set; }
 
         public Status Status { get; set; }
-
+        [Display(Name = "Total (With Tax)")]
         [DisplayFormat(DataFormatString = "{0:C}")]
         public decimal Total { get; set; }
+
+        [DisplayFormat(DataFormatString = "{0:C}")]
+        public decimal Subtotal { get; set; }
 
         public const Decimal TAX_RATE = 0.1m;
         //Navigational Properties
@@ -76,29 +79,31 @@ namespace fa21team16finalproject.Models
         
         public void CalcExtendedPrice()
         {
-            ExtendedPrice = 0;
+            DiscountedSubtotal = 0;
             foreach (DateTime day in Reservation.EachDay(CheckInDate, CheckOutDate))
             {
                 if (day.DayOfWeek == DayOfWeek.Friday | day.DayOfWeek == DayOfWeek.Saturday)
                 {
-                    ExtendedPrice = ExtendedPrice + WeekendNightPrice;
+                    DiscountedSubtotal = DiscountedSubtotal + WeekendNightPrice;
                 }
                 else
                 {
-                    ExtendedPrice = ExtendedPrice + WeekNightPrice;
+                    DiscountedSubtotal = DiscountedSubtotal + WeekNightPrice;
                 }
             }
             
-            StayTotal = ExtendedPrice;
-            ExtendedPrice = ExtendedPrice + CleaningFee;
+            StayTotal = DiscountedSubtotal;
+            Subtotal = CleaningFee + StayTotal;
+            DiscountedSubtotal = DiscountedSubtotal + CleaningFee;
             //if the discount applies
             if (TotalDays >= DiscountDays & !(PercentDiscount == null | DiscountDays == 0))
             {
-                Discount = (decimal)(ExtendedPrice * PercentDiscount);
-                ExtendedPrice = ExtendedPrice - Discount;
+                Discount = (decimal)(DiscountedSubtotal * PercentDiscount);
+                DiscountedSubtotal = DiscountedSubtotal - Discount;
             }
-            decimal Tax = TAX_RATE * ExtendedPrice;
-            Total = Tax + ExtendedPrice;
+            
+            decimal Tax = TAX_RATE * DiscountedSubtotal;
+            Total = Tax + DiscountedSubtotal;
         }
         public Reservation ()
         {

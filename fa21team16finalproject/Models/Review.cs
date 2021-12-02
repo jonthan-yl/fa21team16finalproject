@@ -20,10 +20,13 @@ namespace fa21team16finalproject.Models
         [Display(Name = "Comments:")]
         public String Comments { get; set; }
 
+        public bool Disputed { get; set; }
+
         //Navigational Property
         public AppUser Customer { get; set; }
 
         public Property Property { get; set; }
+
 
     }
 }

@@ -28,5 +28,6 @@ namespace fa21team16finalproject.DAL
         public DbSet<Property> Properties { get; set; }
         public DbSet<Reservation> Reservations { get; set; }
         public DbSet<Review> Reviews { get; set; }
+        public DbSet<fa21team16finalproject.Models.ReportViewModel> ReportViewModel { get; set; }
     }
 }

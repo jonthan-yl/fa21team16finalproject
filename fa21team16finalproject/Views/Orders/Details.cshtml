@@ -36,12 +36,12 @@
         <th>Extended Price</th>
     </tr>
     @foreach (Reservation reservation in Model.Reservations)
-    {
+    { 
 <tr>
     <td>@Html.DisplayFor(ModelItem => reservation.Property.Street)</td>
     <td>@Html.DisplayFor(ModelItem => reservation.CheckInDate)</td>
     <td>@Html.DisplayFor(ModelItem => reservation.CheckOutDate)</td>
-    <td>@Html.DisplayFor(ModelItem => reservation.ExtendedPrice)</td>
+    <td>@Html.DisplayFor(ModelItem => reservation.DiscountedSubtotal)</td>
 </tr>
     }
 </table>
@@ -62,14 +62,14 @@
     </tr>
     @foreach (Reservation reservation in Model.Reservations)
     {
-    <tr>
-        <td>@Html.DisplayFor(ModelItem => reservation.Property.Street)</td>
-       <td>@Html.DisplayFor(ModelItem => reservation.StayTotal)</td>
-       <td>@Html.DisplayFor(ModelItem => reservation.CleaningFee)</td>
-       <td>@Html.DisplayFor(ModelItem => reservation.Discount)</td>
-       <td>@Html.DisplayFor(ModelItem => reservation.ExtendedPrice)</td>
-        <td>@Html.DisplayFor(ModelItem => reservation.Total)</td>
-    </tr>
+<tr>
+    <td>@Html.DisplayFor(ModelItem => reservation.Property.Street)</td>
+    <td>@Html.DisplayFor(ModelItem => reservation.StayTotal)</td>
+    <td>@Html.DisplayFor(ModelItem => reservation.CleaningFee)</td>
+    <td>@Html.DisplayFor(ModelItem => reservation.Discount)</td>
+    <td>@Html.DisplayFor(ModelItem => reservation.DiscountedSubtotal)</td>
+    <td>@Html.DisplayFor(ModelItem => reservation.Total)</td>
+</tr>
     }
 </table>
 <br />
