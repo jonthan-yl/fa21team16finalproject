@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using fa21team16finalproject.DAL;
 using fa21team16finalproject.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace fa21team16finalproject.Controllers
 {
@@ -29,7 +30,7 @@ namespace fa21team16finalproject.Controllers
             {
                 if (property.Reviews.Count() != 0)
                 {
-                    property.Rating = (decimal)property.Reviews.Average(r => r.Rating);
+                    property.Rating = (decimal)property.Reviews.Where(r => r.Disputed == false).Average(r => r.Rating);
                     _context.Update(property);
                     await _context.SaveChangesAsync();
                 }
@@ -102,9 +103,21 @@ namespace fa21team16finalproject.Controllers
                             .Include(p => p.Reservations)
                             .ThenInclude(r => r.Customer)
                             .Include(p => p.Reviews)
+                            .ThenInclude(r => r.Customer)
                             .FirstOrDefaultAsync(m => m.PropertyID == SelectedProperty);
 
             var dbCustomer = await _context.Users.FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
+
+            ViewBag.AllProperties = GetAllPropertiesAvailable();
+
+            foreach (Review rvw in dbProperty.Reviews)
+            {
+                if (rvw.Customer.UserName == User.Identity.Name)
+                {
+                    ViewBag.ErrorMessage = "Our database indicates you have already made a review for this property";
+                    return View(review);
+                }
+            }
 
             foreach (Reservation currentRsv in dbProperty.Reservations)
             {
@@ -125,7 +138,7 @@ namespace fa21team16finalproject.Controllers
                         {
                             if (property.Reviews.Count() != 0)
                             {
-                                property.Rating = (decimal)property.Reviews.Average(r => r.Rating);
+                                property.Rating = (decimal)property.Reviews.Where(r => r.Disputed == false).Average(r => r.Rating);
                                 _context.Update(property);
                                 await _context.SaveChangesAsync();
                             }
@@ -134,7 +147,7 @@ namespace fa21team16finalproject.Controllers
                     }
                 }
             }
-            ViewBag.AllProperties = GetAllPropertiesAvailable();
+
             ViewBag.ErrorMessage = "Our database indicates you have not yet stayed at this property";
             return View(review);
         }
@@ -191,7 +204,7 @@ namespace fa21team16finalproject.Controllers
                 {
                     if (property.Reviews.Count() != 0)
                     {
-                        property.Rating = (decimal)property.Reviews.Average(r => r.Rating);
+                        property.Rating = (decimal)property.Reviews.Where(r => r.Disputed == false).Average(r => r.Rating);
                         _context.Update(property);
                         await _context.SaveChangesAsync();
                     }
@@ -201,6 +214,60 @@ namespace fa21team16finalproject.Controllers
             return View(review);
         }
 
+        [Authorize(Roles = "Host")]
+        public async Task<IActionResult> DisputeReview(int? id)
+        {
+            var review = await _context.Reviews.FindAsync(id);
+            review.Disputed = true;
+            _context.Update(review);
+            List<Property> properties = _context.Properties.Include(p => p.Reviews).ThenInclude(p => p.Property).ToList();
+
+            foreach (Property property in properties)
+            {
+                if (property.Reviews.Count() != 0)
+                {
+                    property.Rating = (decimal)property.Reviews.Where(r => r.Disputed == false).Average(r => r.Rating);
+                    _context.Update(property);
+                    await _context.SaveChangesAsync();
+                }
+            }
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Index", "Home");
+        }
+
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DisputedReviews()
+        {
+            var reviews = await _context.Reviews
+                         .Include(r => r.Customer)
+                         .Include(r => r.Property)
+                         .Where(r => r.Disputed == true)
+                         .ToListAsync();
+
+            return View(reviews);
+        }
+
+        // POST: Properties/Disable/5
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> ApproveReview(int id)
+        {
+            var review = await _context.Reviews.FindAsync(id);
+            review.Disputed = false;
+            _context.Update(review);
+            List<Property> properties = _context.Properties.Include(p => p.Reviews).ThenInclude(p => p.Property).ToList();
+
+            foreach (Property property in properties)
+            {
+                if (property.Reviews.Count() != 0)
+                {
+                    property.Rating = (decimal)property.Reviews.Where(r => r.Disputed == false).Average(r => r.Rating);
+                    _context.Update(property);
+                    await _context.SaveChangesAsync();
+                }
+            }
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Index", "Home");
+        }
         // GET: Reviews/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
@@ -233,7 +300,7 @@ namespace fa21team16finalproject.Controllers
             {
                 if (property.Reviews.Count() != 0)
                 {
-                    property.Rating = (decimal)property.Reviews.Average(r => r.Rating);
+                    property.Rating = (decimal)property.Reviews.Where(r => r.Disputed == false).Average(r => r.Rating);
                     _context.Update(property);
                     await _context.SaveChangesAsync();
                 }

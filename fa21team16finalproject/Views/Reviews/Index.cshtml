@@ -43,7 +43,10 @@
                     <a asp-action="Delete" asp-route-id="@item.ReviewID">Delete</a>
                 }
                 <a asp-action="Details" asp-route-id="@item.ReviewID">Details</a> |
-
+                @if (User.IsInRole("Host"))
+                {
+                    <a asp-action="DisputeReview" asp-route-id="@item.ReviewID">Dispute</a>
+                }
             </td>
         </tr>
 }

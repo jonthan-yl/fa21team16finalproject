@@ -9,6 +9,7 @@
         @if (User.IsInRole("Admin"))
         {
             <a asp-action="PendingProperties" asp-controller="Properties" class="btn btn-info">View Pending Properties</a>
+            <a asp-action="DisputedReviews" asp-controller="Reviews" class="btn btn-info">View Disputed Reviews</a>
             <a asp-action="AdminControl" asp-controller="Account" class="btn btn-info">Admin Actions</a>
             <a asp-action="ReportSearch" asp-controller="Properties" class="btn btn-info">Report</a>
         }

@@ -310,7 +310,17 @@ namespace fa21team16finalproject.Controllers
                 List<Reservation> return_reserv = reservations.ToList();
 
                 ViewBag.ReservationCount = reservations.Count();
-                ViewBag.AverageCommission = reservations.Sum(r => r.StayTotal) * 0.1m / reservations.Count();
+                ViewBag.TotalCommission = reservations.Sum(r => r.StayTotal)* 0.1m;
+                ViewBag.TotalCommission = Math.Round(ViewBag.TotalCommission, 2);
+                if (reservations.Count() != 0)
+                {
+                    ViewBag.AverageCommission = reservations.Sum(r => r.StayTotal) * 0.1m / reservations.Count();
+                    ViewBag.AverageCommission = Math.Round(ViewBag.AverageCommission, 2);
+                }
+                else
+                {
+                    ViewBag.AverageCommission = 0;
+                }
                 List<Property> properties = _context.Properties
                                                                 .Include(p => p.Reservations)
                                                                 .Where(p => p.isDisabled == false)

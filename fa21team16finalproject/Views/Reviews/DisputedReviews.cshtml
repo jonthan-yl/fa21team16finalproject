@@ -1,0 +1,49 @@
+﻿@model IEnumerable<fa21team16finalproject.Models.Review>
+
+    @{
+        ViewData["Title"] = "Index";
+    }
+
+    <h1>Disputed Reviews</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Rating)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Comments)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Property.Street)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Rating)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Comments)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Property.Street)
+                    </td>
+                    <td>
+                        @if (User.Identity.Name == item.Customer.UserName)
+                        {
+                            <a asp-action="Edit" asp-route-id="@item.ReviewID">Edit</a>
+                            <a asp-action="Delete" asp-route-id="@item.ReviewID">Delete</a>
+                        }
+                        <a asp-action="Details" asp-route-id="@item.ReviewID">Details</a> |
+
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
