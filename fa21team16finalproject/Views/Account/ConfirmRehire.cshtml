@@ -1,0 +1,37 @@
+﻿@model fa21team16finalproject.Models.AppUser
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h3>Are you sure you want to rehire this individual?</h3>
+<div>
+    <h4></h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>User Name:</dt>
+        <dd>@Model.UserName</dd>
+
+        <dt>Address:</dt>
+        <dd>@Model.Address</dd>
+
+        <dt>First Name:</dt>
+        <dd>@Model.FirstName</dd>
+
+        <dt>Last Name:</dt>
+        <dd>@Model.LastName</dd>
+
+        <dt>Phone Number:</dt>
+        <dd>@Model.PhoneNumber</dd>
+
+        <dt>Birthday:</dt>
+        <dd>@Model.Birthday</dd>
+    </dl>
+
+    <form asp-action="Rehire">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Hire" class="btn btn-info" /> |
+
+    </form>
+    <a asp-action="Index">Back to List</a>
+</div>

@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -10,6 +9,7 @@ using fa21team16finalproject.DAL;
 using fa21team16finalproject.Models;
 using fa21team16finalproject.Utilities;
 using static fa21team16finalproject.Models.RegisterViewModel;
+using System.Collections.Generic;
 
 namespace fa21team16finalproject.Controllers
 {
@@ -64,7 +64,8 @@ namespace fa21team16finalproject.Controllers
                 FirstName = rvm.FirstName,
                 LastName = rvm.LastName,
                 Birthday = rvm.Birthday,
-                Address = rvm.Address
+                Address = rvm.Address,
+                IsActive = true
             };
 
             //create AddUserModel
@@ -79,7 +80,25 @@ namespace fa21team16finalproject.Controllers
             {
                 aum.User = newUser;
                 aum.Password = rvm.Password;
-                aum.RoleName = "Administrator";
+                aum.RoleName = "Admin";
+
+                IdentityResult res = await Utilities.AddUser.AddUserWithRoleAsync(aum, _userManager, _context);
+
+                if (res.Succeeded) //everything is okay
+                {
+                    fa21team16finalproject.Utilities.EmailMessaging.SendEmail(rvm.Email, "Congratulations on your new account!", "Welcome to BevoBNB! Your new account has been created.");
+                    return RedirectToAction("Index", "Home");
+                }
+                else  //the add user operation didn't work, and we need to show an error message
+                {
+                    foreach (IdentityError error in res.Errors)
+                    {
+                        ModelState.AddModelError("", error.Description);
+                    }
+
+                    //send user back to page with errors
+                    return View(rvm);
+                }
             }
             else
             {
@@ -113,6 +132,85 @@ namespace fa21team16finalproject.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> AdminControl()
+        {
+            List<AppUser> admins = new List<AppUser>();
+            foreach (AppUser user in _userManager.Users)
+            {
+                if (await _userManager.IsInRoleAsync(user, "Admin") == true)
+                {
+                    admins.Add(user);
+                }
+            }
+            return View(admins);
+        }
+
+        public async Task<IActionResult> ConfirmRehire(string? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            AppUser admin = _userManager.Users.FirstOrDefault(u => u.Id == id);
+
+            if (admin == null)
+            {
+                return NotFound();
+            }
+            return View(admin);
+        }
+        public async Task<IActionResult> ConfirmFire(string? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            AppUser admin = _userManager.Users.FirstOrDefault(u => u.Id == id);
+
+            if (admin == null)
+            {
+                return NotFound();
+            }
+            return View(admin);
+        }
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Fire(string id)
+        {
+            AppUser admin = await _userManager.FindByIdAsync(id);
+            admin.IsActive = false;
+            _context.Update(admin);
+            await _context.SaveChangesAsync();
+            List<AppUser> admins = new List<AppUser>();
+            foreach (AppUser user in _userManager.Users)
+            {
+                if (await _userManager.IsInRoleAsync(user, "Admin") == true)
+                {
+                    admins.Add(user);
+                }
+            }
+            return View("AdminControl",admins);
+        }
+
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Rehire(string id)
+        {
+            AppUser admin = await _userManager.FindByIdAsync(id);
+            admin.IsActive = true;
+            _context.Update(admin);
+            await _context.SaveChangesAsync();
+            List<AppUser> admins = new List<AppUser>();
+            foreach (AppUser user in _userManager.Users)
+            {
+                if (await _userManager.IsInRoleAsync(user, "Admin") == true)
+                {
+                    admins.Add(user);
+                }
+            }
+            return View("AdminControl",admins);
+        }
         // GET: /Account/Login
         [AllowAnonymous]
         public IActionResult Login(string returnUrl)
@@ -139,6 +237,18 @@ namespace fa21team16finalproject.Controllers
                 return View(lvm);
             }
 
+            foreach (AppUser admin in _userManager.Users)
+            {
+                if (await _userManager.IsInRoleAsync(admin, "Admin") == true)
+                {
+                    if (admin.Email == lvm.Email & admin.IsActive == false)
+                    {
+                        ModelState.AddModelError("", "This admin has been fired, and cannot log in.");
+                        return View(lvm);
+                    }
+                }
+            }
+
             //attempt to sign the user in using the SignInManager
             Microsoft.AspNetCore.Identity.SignInResult result = await _signInManager.PasswordSignInAsync(lvm.Email, lvm.Password, lvm.RememberMe, lockoutOnFailure: false);
 
@@ -147,7 +257,7 @@ namespace fa21team16finalproject.Controllers
             if (result.Succeeded)
             {
                 //TODO: Figure out how to have customer be directed to properties
-                //if(User.IsInRole("Customer))
+                if(User.IsInRole("Customer"))
                 {
                     
                     return Redirect(returnUrl ?? "/Properties/Index");

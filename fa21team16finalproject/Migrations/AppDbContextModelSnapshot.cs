@@ -273,9 +273,6 @@ namespace fa21team16finalproject.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<bool>("isComplete")
-                        .HasColumnType("bit");
-
                     b.HasKey("OrderID");
 
                     b.HasIndex("AppUserId");
@@ -343,8 +340,9 @@ namespace fa21team16finalproject.Migrations
                     b.Property<decimal>("WeekendNightPrice")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("ZipCode")
-                        .HasColumnType("int");
+                    b.Property<string>("ZipCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("isDisabled")
                         .HasColumnType("bit");
@@ -394,6 +392,9 @@ namespace fa21team16finalproject.Migrations
 
                     b.Property<decimal>("CleaningFee")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("ConfirmationNumber")
+                        .HasColumnType("int");
 
                     b.Property<string>("CustomerId")
                         .HasColumnType("nvarchar(450)");

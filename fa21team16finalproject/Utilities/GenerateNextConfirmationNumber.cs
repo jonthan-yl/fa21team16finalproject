@@ -20,7 +20,7 @@ namespace fa21team16finalproject.Utilities
             Int32 intMaxPropertyNumber; //the current maximum course number
             Int32 intNextPropertyNumber; //the course number for the next class
 
-            if (_context.Orders.Count() == 1) //there is one reservation (the first one just made)
+            if (_context.Orders.Count() == 2) //there is one reservation (the first one just made)
             {
                 intMaxPropertyNumber = START_NUMBER; //registration numbers start at 21901
             }
@@ -33,7 +33,7 @@ namespace fa21team16finalproject.Utilities
             intNextPropertyNumber = intMaxPropertyNumber + 1;
 
             //return the value
-            return intNextPropertyNumber;
+            return _context.Orders.Count() + START_NUMBER;
         }
 
     }

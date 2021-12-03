@@ -20,27 +20,50 @@ namespace fa21team16finalproject.Controllers
         }
 
         // GET: Reviews
-        public async Task<IActionResult> Index(int? propertyId)
+        public async Task<IActionResult> Index(int? PropertyID)
         {
-            if (propertyId != null)
+
+            List<Property> properties = _context.Properties.Include(p => p.Reviews).ThenInclude(p => p.Property).ToList();
+
+            foreach (Property property in properties)
             {
+                if (property.Reviews.Count() != 0)
+                {
+                    property.Rating = (decimal)property.Reviews.Average(r => r.Rating);
+                    _context.Update(property);
+                    await _context.SaveChangesAsync();
+                }
+            }
+
+            if (PropertyID != null)
+            {
+                if (User.IsInRole("Host"))
+                {
+                    List<Review> revs = await _context.Reviews
+                            .Include(r => r.Property)
+                            .ThenInclude(r => r.Host)
+                            .Include(r => r.Customer)
+                            .Where(r => r.Property.Host.UserName == User.Identity.Name)
+                            .ToListAsync();
+
+                    return View(revs);
+                }
                 List<Review> reviews = await _context.Reviews
                                         .Include(r => r.Property)
-                                        .Where(r => r.Property.PropertyID == propertyId)
+                                        .Include(r => r.Customer)
+                                        .Where(r => r.Property.PropertyID == PropertyID)
                                         .ToListAsync();
                 return View(reviews);
             }
-            if (User.IsInRole("Host"))
+            else
             {
-                List<Review> reviews = await _context.Reviews
-                        .Include(r => r.Property)
-                        .ThenInclude(r => r.Host)
-                        .Where(r => r.Property.Host.UserName == User.Identity.Name)
-                        .ToListAsync();
-
-                return View(reviews);
+                List<Review> revi = await _context.Reviews
+                            .Include(r => r.Property)
+                            .ThenInclude(r => r.Host)
+                            .Include(r => r.Customer)
+                            .ToListAsync();
+                return View(revi);
             }
-            return View(await _context.Reviews.ToListAsync());
         }
 
         // GET: Reviews/Details/5
@@ -96,7 +119,17 @@ namespace fa21team16finalproject.Controllers
                         dbProperty.calcRating();
                         _context.Add(review);
                         await _context.SaveChangesAsync();
-                       
+                        List<Property> properties = _context.Properties.Include(p => p.Reviews).ThenInclude(p => p.Property).ToList();
+
+                        foreach (Property property in properties)
+                        {
+                            if (property.Reviews.Count() != 0)
+                            {
+                                property.Rating = (decimal)property.Reviews.Average(r => r.Rating);
+                                _context.Update(property);
+                                await _context.SaveChangesAsync();
+                            }
+                        }
                         return RedirectToAction(nameof(Index));
                     }
                 }
@@ -152,6 +185,17 @@ namespace fa21team16finalproject.Controllers
                         throw;
                     }
                 }
+                List<Property> properties = _context.Properties.Include(p => p.Reviews).ThenInclude(p => p.Property).ToList();
+
+                foreach (Property property in properties)
+                {
+                    if (property.Reviews.Count() != 0)
+                    {
+                        property.Rating = (decimal)property.Reviews.Average(r => r.Rating);
+                        _context.Update(property);
+                        await _context.SaveChangesAsync();
+                    }
+                }
                 return RedirectToAction(nameof(Index));
             }
             return View(review);
@@ -183,6 +227,17 @@ namespace fa21team16finalproject.Controllers
             var review = await _context.Reviews.FindAsync(id);
             _context.Reviews.Remove(review);
             await _context.SaveChangesAsync();
+            List<Property> properties = _context.Properties.Include(p => p.Reviews).ThenInclude(p => p.Property).ToList();
+
+            foreach (Property property in properties)
+            {
+                if (property.Reviews.Count() != 0)
+                {
+                    property.Rating = (decimal)property.Reviews.Average(r => r.Rating);
+                    _context.Update(property);
+                    await _context.SaveChangesAsync();
+                }
+            }
             return RedirectToAction(nameof(Index));
         }
 

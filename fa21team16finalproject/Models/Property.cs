@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
+using fa21team16finalproject.DAL;
 
 namespace fa21team16finalproject.Models
 {
@@ -34,7 +35,7 @@ namespace fa21team16finalproject.Models
 
         [Display(Name = "Property Zip Code:")]
         [Required(ErrorMessage = "Product Zip Code is required")]
-        public Int32 ZipCode { get; set; }
+        public string ZipCode { get; set; }
 
         //Only to be charged once per stay
         [Display(Name = "Property Cleaning Fee:")]
@@ -117,10 +118,6 @@ namespace fa21team16finalproject.Models
             if (Reviews.Count != 0)
             {
                 Rating = reviewCount / Reviews.Count;
-            }
-            else
-            {
-                Rating = 0;
             }
         }
         private bool datesConflict(DateTime min1, DateTime max1, DateTime min2, DateTime max2)

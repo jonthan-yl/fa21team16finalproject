@@ -10,8 +10,8 @@ using fa21team16finalproject.DAL;
 namespace fa21team16finalproject.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20211201022539_ReservationStatus")]
-    partial class ReservationStatus
+    [Migration("20211203005427_Setup")]
+    partial class Setup
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -224,6 +224,9 @@ namespace fa21team16finalproject.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
+                    b.Property<string>("ZipCode")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedEmail")
@@ -271,9 +274,6 @@ namespace fa21team16finalproject.Migrations
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
-
-                    b.Property<bool>("isComplete")
-                        .HasColumnType("bit");
 
                     b.HasKey("OrderID");
 
@@ -342,8 +342,9 @@ namespace fa21team16finalproject.Migrations
                     b.Property<decimal>("WeekendNightPrice")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("ZipCode")
-                        .HasColumnType("int");
+                    b.Property<string>("ZipCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("isDisabled")
                         .HasColumnType("bit");
@@ -358,6 +359,24 @@ namespace fa21team16finalproject.Migrations
                     b.HasIndex("HostId");
 
                     b.ToTable("Properties");
+                });
+
+            modelBuilder.Entity("fa21team16finalproject.Models.ReportViewModel", b =>
+                {
+                    b.Property<int>("Pkey")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime?>("SearchEndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("SearchStartDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Pkey");
+
+                    b.ToTable("ReportViewModel");
                 });
 
             modelBuilder.Entity("fa21team16finalproject.Models.Reservation", b =>
@@ -376,6 +395,9 @@ namespace fa21team16finalproject.Migrations
                     b.Property<decimal>("CleaningFee")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int>("ConfirmationNumber")
+                        .HasColumnType("int");
+
                     b.Property<string>("CustomerId")
                         .HasColumnType("nvarchar(450)");
 
@@ -385,7 +407,7 @@ namespace fa21team16finalproject.Migrations
                     b.Property<int>("DiscountDays")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("ExtendedPrice")
+                    b.Property<decimal>("DiscountedSubtotal")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int?>("OrderID")
@@ -401,6 +423,9 @@ namespace fa21team16finalproject.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("StayTotal")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Subtotal")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("Total")
@@ -438,6 +463,9 @@ namespace fa21team16finalproject.Migrations
 
                     b.Property<string>("CustomerId")
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("Disputed")
+                        .HasColumnType("bit");
 
                     b.Property<int?>("PropertyID")
                         .HasColumnType("int");

@@ -62,6 +62,8 @@ namespace fa21team16finalproject.Models
         [DisplayFormat(DataFormatString = "{0:C}")]
         public decimal Subtotal { get; set; }
 
+        public Int32 ConfirmationNumber { get; set; }
+
         public const Decimal TAX_RATE = 0.1m;
         //Navigational Properties
         public Order? Order { get; set; }

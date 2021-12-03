@@ -9,6 +9,8 @@
         @if (User.IsInRole("Admin"))
         {
             <a asp-action="PendingProperties" asp-controller="Properties" class="btn btn-info">View Pending Properties</a>
+            <a asp-action="AdminControl" asp-controller="Account" class="btn btn-info">Admin Actions</a>
+            <a asp-action="ReportSearch" asp-controller="Properties" class="btn btn-info">Report</a>
         }
         @if (User.IsInRole("Admin") | User.IsInRole("Customer"))
         {
@@ -17,6 +19,10 @@
         @if (User.IsInRole("Host"))
         {
             <a asp-action="ReportSearch" asp-controller="Properties" class="btn btn-info">Report</a>
+        }
+        @if (User.IsInRole("Customer"))
+        {
+            <a asp-action="Index" asp-controller="Orders" class="btn btn-info">My Orders</a>
         }
     }
 </center>

@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using fa21team16finalproject.DAL;
 using fa21team16finalproject.Models;
 using Microsoft.AspNetCore.Authorization;
+using fa21team16finalproject.Utilities;
 
 namespace fa21team16finalproject.Controllers
 {
@@ -24,7 +25,7 @@ namespace fa21team16finalproject.Controllers
         public async Task<IActionResult> Index()
         {
             //limit the list to only the registration details that belong to this registration
-
+        
         if (User.IsInRole("Customer"))
             {
                 List<Reservation> ods = await _context.Reservations
@@ -138,13 +139,13 @@ namespace fa21team16finalproject.Controllers
             {
                 return View(reservation);
             }
-            /* TODO: REMOVE COMMENT 
+
             if (reservation.CheckInDate < DateTime.Now)
             {
                 ViewBag.ErrorMessage = "Check in date cannot be prior to today's date";
                 return View(reservation);
             }
-            */
+
             if (reservation.CheckOutDate < reservation.CheckInDate)
             {
                 ViewBag.ErrorMessage = "Check in date must be prior to check out date";
@@ -362,6 +363,7 @@ namespace fa21team16finalproject.Controllers
             var dbReservation = await _context.Reservations
                 .Include(r => r.Customer)
                 .FirstOrDefaultAsync(m => m.ReservationID == id);
+
             if (User.IsInRole("Customer") && dbReservation.Customer.UserName != User.Identity.Name)
             {
                 return View("Error", new String[] { "This is not your order!  Don't be such a snoop!" });
@@ -385,10 +387,11 @@ namespace fa21team16finalproject.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            Reservation reservation = _context.Reservations.FirstOrDefault(r => r.ReservationID == id);
+            Reservation reservation = _context.Reservations.Include(r => r.Property).FirstOrDefault(r => r.ReservationID == id);
             reservation.Status = Status.Cancelled;
             _context.Update(reservation);
             await _context.SaveChangesAsync();
+            fa21team16finalproject.Utilities.EmailMessaging.SendEmail(User.Identity.Name, "Order cancelled", "You have cancelled your order for" + (string)reservation.Property.Street);
             return View("Index");
         }
         private SelectList GetAllPropertiesAvailable()

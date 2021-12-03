@@ -34,6 +34,7 @@ namespace fa21team16finalproject.Migrations
                     Birthday = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ZipCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -65,6 +66,20 @@ namespace fa21team16finalproject.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Categories", x => x.CategoryID);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ReportViewModel",
+                columns: table => new
+                {
+                    Pkey = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SearchStartDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    SearchEndDate = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ReportViewModel", x => x.Pkey);
                 });
 
             migrationBuilder.CreateTable(
@@ -181,7 +196,6 @@ namespace fa21team16finalproject.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ConfirmationNumber = table.Column<int>(type: "int", nullable: false),
                     OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    isComplete = table.Column<bool>(type: "bit", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     AppUserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
@@ -206,7 +220,7 @@ namespace fa21team16finalproject.Migrations
                     Street = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     City = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     State = table.Column<int>(type: "int", nullable: false),
-                    ZipCode = table.Column<int>(type: "int", nullable: false),
+                    ZipCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CleaningFee = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     WeekNightPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     WeekendNightPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
@@ -255,9 +269,12 @@ namespace fa21team16finalproject.Migrations
                     DiscountDays = table.Column<int>(type: "int", nullable: false),
                     PercentDiscount = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     StayTotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    ExtendedPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    DiscountedSubtotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Discount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
                     Total = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Subtotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    ConfirmationNumber = table.Column<int>(type: "int", nullable: false),
                     OrderID = table.Column<int>(type: "int", nullable: true),
                     PropertyID = table.Column<int>(type: "int", nullable: true),
                     CustomerId = table.Column<string>(type: "nvarchar(450)", nullable: true)
@@ -293,6 +310,7 @@ namespace fa21team16finalproject.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Rating = table.Column<int>(type: "int", nullable: false),
                     Comments = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Disputed = table.Column<bool>(type: "bit", nullable: false),
                     CustomerId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     PropertyID = table.Column<int>(type: "int", nullable: true)
                 },
@@ -409,6 +427,9 @@ namespace fa21team16finalproject.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
+                name: "ReportViewModel");
 
             migrationBuilder.DropTable(
                 name: "Reservations");

@@ -115,16 +115,16 @@ else
 
                         </td>
                     }
-                    else
+                    @if (User.IsInRole("Customer"))
                     {
                         <td>
                             <a asp-controller="Reservations" asp-action="Create" class="nav-link">Create a Reservation</a>
                         </td>
                     }
-                    <td>
-                        <a asp-action="Details" asp-route-id="@item.PropertyID">Details</a> |
-                        <a asp-controller="Reviews" asp-action="Index" asp-route-id="@item.PropertyID">Reviews</a>
-                    </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.PropertyID">Details</a> |
+                    <a asp-controller="Reviews" asp-action="Index" asp-route-PropertyID="@item.PropertyID">Reviews</a>
+                </td>
                 </tr>
             }
         }

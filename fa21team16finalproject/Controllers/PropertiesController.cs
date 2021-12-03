@@ -232,60 +232,93 @@ namespace fa21team16finalproject.Controllers
 
         public ActionResult DisplayReport(ReportViewModel rvm)
         {
-
-            var reservations = _context.Reservations
+            if (User.IsInRole("Host"))
+            {
+                var reservations = _context.Reservations
                                         .Include(r => r.Customer)
                                         .Include(r => r.Property)
                                         .ThenInclude(r => r.Host)
                                         .Where(r => r.Property.Host.UserName == User.Identity.Name)
                                         .Where(r => r.Status == Status.Confirmed);
 
-            if (rvm.SearchStartDate != null)
-            {
-                reservations = reservations.Where(r => r.CheckOutDate >= rvm.SearchStartDate);
-            }
-            if (rvm.SearchEndDate != null)
-            {
-                reservations = reservations.Where(r => r.CheckInDate <= rvm.SearchEndDate);
-            }
-            reservations = reservations.Where(r => r.Customer.UserName != r.Property.Host.UserName);
-            List<Reservation> return_reserv = reservations.ToList();
-
-            ViewBag.ReservationCount = reservations.Count();
-            
-            List<Property> properties = _context.Properties.Where(p => p.Host.UserName == User.Identity.Name)
-                                                            .Include(p => p.Reservations)
-                                                            .ToList();
-            ViewBag.allProperties = properties;
-
-            List<decimal> propertyStayRevenue = new List<decimal>();
-            List<decimal> propertyCleaningFee = new List<decimal>();
-
-            foreach (Property property in properties)
-            {
-                decimal stayRevenue = 0;
-                decimal cleaningFees = 0;
-                foreach(Reservation reservation in property.Reservations)
+                if (rvm.SearchStartDate != null)
                 {
-                    if (return_reserv.Contains(reservation))
-                    {
-                        stayRevenue += reservation.StayTotal;
-                        cleaningFees += reservation.CleaningFee;
-                    }
+                    reservations = reservations.Where(r => r.CheckOutDate >= rvm.SearchStartDate);
                 }
-                stayRevenue *= V;
-                propertyStayRevenue.Add(stayRevenue);
-                propertyCleaningFee.Add(cleaningFees);
-                //Calculate stay revenue, cleaning fees collected, total reservations
+                if (rvm.SearchEndDate != null)
+                {
+                    reservations = reservations.Where(r => r.CheckInDate <= rvm.SearchEndDate);
+                }
+                reservations = reservations.Where(r => r.Customer.UserName != r.Property.Host.UserName);
+                List<Reservation> return_reserv = reservations.ToList();
+
+                ViewBag.ReservationCount = reservations.Count();
+
+                List<Property> properties = _context.Properties.Where(p => p.Host.UserName == User.Identity.Name)
+                                                                .Include(p => p.Reservations)
+                                                                .Where(p => p.isDisabled == false)
+                                                                .Where(p => p.isPending == false)
+                                                                .ToList();
+                ViewBag.allProperties = properties;
+
+                List<decimal> propertyStayRevenue = new List<decimal>();
+                List<decimal> propertyCleaningFee = new List<decimal>();
+
+                foreach (Property property in properties)
+                {
+                    decimal stayRevenue = 0;
+                    decimal cleaningFees = 0;
+                    foreach (Reservation reservation in property.Reservations)
+                    {
+                        if (return_reserv.Contains(reservation))
+                        {
+                            stayRevenue += reservation.StayTotal;
+                            cleaningFees += reservation.CleaningFee;
+                        }
+                    }
+                    stayRevenue *= V;
+                    propertyStayRevenue.Add(stayRevenue);
+                    propertyCleaningFee.Add(cleaningFees);
+                    //Calculate stay revenue, cleaning fees collected, total reservations
+                }
+
+                ViewBag.TotalStayRevenue = propertyStayRevenue.Sum();
+                ViewBag.TotalCleaningFees = propertyCleaningFee.Sum();
+                ViewBag.propertyStayRevenue = propertyStayRevenue;
+                ViewBag.propertyCleaningFees = propertyCleaningFee;
+
+
+                return View("Report", return_reserv);
             }
-            //TODO: CREATE LIST OF DECIMALS FOR ALL THE PROPERTIES YOU NEED TO DISPLAY, PUT IN VIEWBAG GL ON LIFE
-            ViewBag.TotalStayRevenue = propertyStayRevenue.Sum();
-            ViewBag.TotalCleaningFees = propertyCleaningFee.Sum();
-            ViewBag.propertyStayRevenue = propertyStayRevenue;
-            ViewBag.propertyCleaningFees = propertyCleaningFee;
+            else
+            {
+                var reservations = _context.Reservations
+                        .Include(r => r.Customer)
+                        .Include(r => r.Property)
+                        .ThenInclude(r => r.Host)
+                        .Where(r => r.Status == Status.Confirmed);
 
+                if (rvm.SearchStartDate != null)
+                {
+                    reservations = reservations.Where(r => r.CheckOutDate >= rvm.SearchStartDate);
+                }
+                if (rvm.SearchEndDate != null)
+                {
+                    reservations = reservations.Where(r => r.CheckInDate <= rvm.SearchEndDate);
+                }
+                reservations = reservations.Where(r => r.Customer.UserName != r.Property.Host.UserName);
+                List<Reservation> return_reserv = reservations.ToList();
 
-            return View("Report", return_reserv);
+                ViewBag.ReservationCount = reservations.Count();
+                ViewBag.AverageCommission = reservations.Sum(r => r.StayTotal) * 0.1m / reservations.Count();
+                List<Property> properties = _context.Properties
+                                                                .Include(p => p.Reservations)
+                                                                .Where(p => p.isDisabled == false)
+                                                                .Where(p => p.isPending == false)
+                                                                .ToList();
+                ViewBag.TotalProperties = properties.Count;
+                return View("AdminReport");
+            }
         }
 
         public IActionResult PropertySearch()

@@ -45,9 +45,6 @@ namespace fa21team16finalproject.Models
 
         public const Decimal TAX_RATE = 0.1m;
 
-        [Display(Name = "Confirmed:")]
-        public bool isComplete { get; set; }
-
         public Status Status { get; set; }
 
         //Navigational Property
@@ -62,10 +59,6 @@ namespace fa21team16finalproject.Models
             if (Reservations == null)
             {
                 Reservations = new List<Reservation>();
-            }
-            if (isComplete != true)
-            {
-                isComplete = false;
             }
         }
 

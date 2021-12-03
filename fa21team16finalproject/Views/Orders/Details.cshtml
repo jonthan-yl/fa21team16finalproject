@@ -47,8 +47,11 @@
 </table>
 <div>
     <a asp-action="Index" class="btn btn-info">Back to List</a>
+    @if(@Model.Status == Status.Pending )
+    {
     <a asp-action="Create" asp-controller="reservations" asp-route-orderID="@Model.OrderID" class="btn btn-warning">Add Another Item</a>
     <a asp-action="Index" asp-controller="reservations" asp-route-orderID="@Model.OrderID" class="btn btn-danger">Edit Existing Items</a>
+    }
 </div>
 <h5>Order Summary</h5>
 <table class="table table-primary">
@@ -93,7 +96,7 @@
     </tr>
 </table>
         <p>@ViewBag.ErrorMessage</p>
-@if (!Model.isComplete)
+@if (Model.Status == Status.Pending)
 {
         <div>
             <a asp-action="ConfirmOrder" asp-controller="Orders" asp-route-orderID="@Model.OrderID" class="btn btn-warning">Confirm Order</a>

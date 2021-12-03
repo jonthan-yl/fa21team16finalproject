@@ -84,5 +84,103 @@ namespace fa21team16finalproject.Controllers
             //this is the happy path - seeding worked!
             return View("Confirm");
         }
+
+        public async Task<IActionResult> SeedCategories()
+        {
+            try
+            {
+                Seeding.SeedCategories.SeedAllCategories(_context);
+            }
+            catch (Exception ex)
+            {
+                //add the error messages to a list of strings
+                List<String> errorList = new List<String>();
+
+                //Add the outer message
+                errorList.Add(ex.Message);
+
+                //Add the message from the inner exception
+                errorList.Add(ex.InnerException.Message);
+
+                //Add additional inner exception messages, if there are any
+                if (ex.InnerException.InnerException != null)
+                {
+                    errorList.Add(ex.InnerException.InnerException.Message);
+                }
+
+                return View("Error", errorList);
+            }
+
+            //this is the happy path - seeding worked!
+            return View("Confirm");
+        }
+        public async Task<IActionResult> SeedProperties()
+        {
+            try
+            {
+                Seeding.SeedProperties.SeedAllProperties(_context);
+            }
+            catch (Exception ex)
+            {
+                //add the error messages to a list of strings
+                List<String> errorList = new List<String>();
+
+                //Add the outer message
+                errorList.Add(ex.Message);
+
+                //Add the message from the inner exception
+                errorList.Add(ex.InnerException.Message);
+
+                //Add additional inner exception messages, if there are any
+                if (ex.InnerException.InnerException != null)
+                {
+                    errorList.Add(ex.InnerException.InnerException.Message);
+                }
+
+                return View("Error", errorList);
+            }
+
+            //this is the happy path - seeding worked!
+            return View("Confirm");
+        }
+
+        public async Task<IActionResult> SeedReviews()
+        {
+            try
+            {
+                Seeding.SeedReviews.SeedAllReviews(_context);
+            }
+            catch (Exception ex)
+            {
+                //add the error messages to a list of strings
+                List<String> errorList = new List<String>();
+
+                //Add the outer message
+                errorList.Add(ex.Message);
+
+                //Add the message from the inner exception
+                errorList.Add(ex.InnerException.Message);
+
+                //Add additional inner exception messages, if there are any
+                if (ex.InnerException.InnerException != null)
+                {
+                    errorList.Add(ex.InnerException.InnerException.Message);
+                }
+
+                return View("Error", errorList);
+            }
+
+            //this is the happy path - seeding worked!
+            return View("Confirm");
+        }
+        public async Task<IActionResult> SeedTransactions()
+        {
+
+                Seeding.SeedTransactions.SeedAllTransactions(_context);
+
+
+            //this is the happy path - seeding worked!
+            return View("Confirm");
+        }
     }
 }

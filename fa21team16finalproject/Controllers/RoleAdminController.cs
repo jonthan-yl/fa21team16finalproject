@@ -29,8 +29,8 @@ namespace fa21team16finalproject.Controllers
             _roleManager = roleManager;
         }
 
-        // GET: /RoleAdmin/
-        public async Task<ActionResult> Index()
+            // GET: /RoleAdmin/
+            public async Task<ActionResult> Index()
         {
             //Create a list of roles that will need to be edited
             List<RoleEditModel> roles = new List<RoleEditModel>();
@@ -205,5 +205,7 @@ namespace fa21team16finalproject.Controllers
             //show the user the error page
             return View("Error", new string[] { "Role Not Found" });
         }
+
+
     }
 }

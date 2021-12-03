@@ -31,20 +31,32 @@ namespace fa21team16finalproject.Controllers
         // GET: Orders/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            if (id == null)
+            {
+                var order = await _context.Orders.Include(o => o.Reservations)
+                                                  .ThenInclude(o => o.Property)
+                                                  .Include(o => o.AppUser)
+                            .FirstOrDefaultAsync(o => o.AppUser.UserName == User.Identity.Name && o.Status == Status.Pending);
+                if (order == null)
+                {
+                    return View("Error", new String[] { "No active orders in database." });
+                }
+                if (User.IsInRole("Customer") && order.AppUser.UserName != User.Identity.Name)
+                {
+                    return View("Error", new String[] { "This is not your order!  Don't be such a snoop!" });
+                }
+                return View(order);
+            }
+            else
+            {
+                var order = await _context.Orders.Include(o => o.Reservations)
+                                  .ThenInclude(o => o.Property)
+                                  .Include(o => o.AppUser)
+                                  .FirstOrDefaultAsync(o => o.OrderID == id);
 
-            var order  = await _context.Orders.Include(o => o.Reservations)
-                                              .ThenInclude(o => o.Property)
-                                              .Include(o => o.AppUser)
-                        .FirstOrDefaultAsync(o => o.AppUser.UserName == User.Identity.Name && o.Status == Status.Pending);
-            if (order == null)
-            {
-                return View("Error", new String[] { "No active orders in database." });
+                return View(order);
             }
-            if (User.IsInRole("Customer") && order.AppUser.UserName != User.Identity.Name)
-            {
-                return View("Error", new String[] { "This is not your order!  Don't be such a snoop!" });
-            }
-            return View(order);
+
         }
 
         // GET: Orders/Create
@@ -162,12 +174,15 @@ namespace fa21team16finalproject.Controllers
                 ViewBag.ErrorMessage = "You have not yet added any reservations to your order!";
                 return View("Details", order);
             }
+            fa21team16finalproject.Utilities.EmailMessaging.SendEmail(order.AppUser.Email, "Order Confirmed", "Your order has been confirmed for BevoBNB");
             order.Status = Status.Confirmed;
+            order.ConfirmationNumber = Utilities.GenerateNextConfirmationNumber.GetNextConfirmationNumber(_context);
             foreach (Reservation currentRsv in order.Reservations)
             {
                 currentRsv.Status = Status.Confirmed;
+                currentRsv.ConfirmationNumber = order.ConfirmationNumber;
             }
-            order.ConfirmationNumber = Utilities.GenerateNextConfirmationNumber.GetNextConfirmationNumber(_context);
+            
             _context.Update(order);
             await _context.SaveChangesAsync();
             return View(order);
